@@ -1680,8 +1680,18 @@ stroke-width='6'/>
         </div>
         <div class="bk-card">
           <div class="bk-title">Registrum Nubis</div>
-          <div class="bk-desc">Manually call the cloud ledger into this device, or seal this device’s current ledger
-            into the cloud.</div>
+          <div class="bk-desc">Store your Sync Key privately on this device, then call or seal the cloud ledger.</div>
+
+          <div class="fgrp" style="margin-bottom:1rem">
+            <label>Sync Key</label>
+            <input type="password" id="syncKeyInput" placeholder="Paste GitHub Gist token">
+          </div>
+
+          <div class="brow">
+            <button class="btn btn-s btn-full" onclick="saveSyncKey()">Save Sync Key</button>
+            <button class="btn btn-gh btn-full" onclick="clearSyncKey()">Clear Sync Key</button>
+          </div>
+
           <div class="brow">
             <button class="btn btn-s btn-full" onclick="syncDownFromCloud()">Evoca Registrum</button>
             <button class="btn btn-g btn-full" onclick="syncUpToCloud()">Signa Registrum</button>
@@ -1780,7 +1790,7 @@ stroke-width='6'/>
     const THEME_KEY = 'elysian_arca_theme_v1';
     const GIST_ID = '33b11a4a6e557cebdf47386735632b2c';
     const GIST_FILE = 'elysian-arca-data.json';
-    const GITHUB_TOKEN = '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';
+    const TOKEN_KEY = 'elysian_arca_sync_token';
     const MSGS = [
       '"Continuity over chaos."',
       '"The civilization survived another day."',
@@ -1794,6 +1804,29 @@ stroke-width='6'/>
     const editing = { daily: null, aether: null, ritual: null };
     let editingQId = null;
     let quickType = 'deposit'; // 'deposit' | 'withdrawal'
+
+    function getGithubToken() {
+      return localStorage.getItem(TOKEN_KEY) || '';
+    }
+
+    function saveSyncKey() {
+      const el = document.getElementById('syncKeyInput');
+      const token = el ? el.value.trim() : '';
+
+      if (!token) {
+        toast('Enter Sync Key.');
+        return;
+      }
+
+      localStorage.setItem(TOKEN_KEY, token);
+      el.value = '';
+      toast('Sync Key saved.');
+    }
+
+    function clearSyncKey() {
+      localStorage.removeItem(TOKEN_KEY);
+      toast('Sync Key cleared.');
+    }
 
     /* ── DAY / NIGHT MODE ───────────────────────────────────────────────────────── */
     function applyMode(mode) {
@@ -1846,8 +1879,14 @@ stroke-width='6'/>
     let cloudSyncBusy = false;
 
     function cloudHeaders() {
+      const token = getGithubToken();
+
+      if (!token) {
+        throw new Error('Missing Sync Key.');
+      }
+
       return {
-        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+        'Authorization': `Bearer ${token}`,
         'Accept': 'application/vnd.github+json',
         'Content-Type': 'application/json'
       };
