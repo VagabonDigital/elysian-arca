@@ -223,6 +223,104 @@ stroke-width='6'/>
       background: rgba(200, 164, 74, .3);
     }
 
+    /* ─── ARCA SIGIL ─────────────────────────────────────────────────────────── */
+    .arca-sigil {
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 1.35rem;
+      color: var(--gold);
+      filter: drop-shadow(0 0 16px rgba(200, 164, 74, .18));
+      animation: sigilBreath 5.5s ease-in-out infinite;
+    }
+
+    .arca-sigil svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+    }
+
+    .sigil-outer {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 3.2;
+      opacity: .92;
+      transform-origin: 50% 50%;
+      animation: sigilTurn 18s linear infinite;
+    }
+
+    .sigil-inner {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      opacity: .62;
+      transform-origin: 50% 50%;
+      animation: sigilPulse 5.5s ease-in-out infinite;
+    }
+
+    .sigil-core {
+      fill: currentColor;
+      opacity: .85;
+      animation: coreGlow 3.8s ease-in-out infinite;
+    }
+
+    .sigil-line {
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      opacity: .7;
+    }
+
+    @keyframes sigilBreath {
+
+      0%,
+      100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 12px rgba(200, 164, 74, .14));
+      }
+
+      50% {
+        transform: scale(1.035);
+        filter: drop-shadow(0 0 24px rgba(200, 164, 74, .32));
+      }
+    }
+
+    @keyframes sigilTurn {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes sigilPulse {
+
+      0%,
+      100% {
+        opacity: .48;
+        transform: scale(.92) rotate(45deg);
+      }
+
+      50% {
+        opacity: .82;
+        transform: scale(1.02) rotate(45deg);
+      }
+    }
+
+    @keyframes coreGlow {
+
+      0%,
+      100% {
+        opacity: .45;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
     @keyframes fadeUp {
       from {
         opacity: 0;
@@ -1428,6 +1526,17 @@ stroke-width='6'/>
   <div id="landing">
     <div class="land-glow"></div>
     <div class="land-inner">
+      <div class="arca-sigil" aria-hidden="true">
+        <svg viewBox="0 0 100 100" role="img">
+          <polygon class="sigil-outer" points="50,7 93,50 50,93 7,50"></polygon>
+          <polygon class="sigil-inner" points="50,24 76,50 50,76 24,50"></polygon>
+          <circle class="sigil-core" cx="50" cy="50" r="4.5"></circle>
+          <line class="sigil-line" x1="50" y1="36" x2="50" y2="45"></line>
+          <line class="sigil-line" x1="50" y1="55" x2="50" y2="64"></line>
+          <line class="sigil-line" x1="36" y1="50" x2="45" y2="50"></line>
+          <line class="sigil-line" x1="55" y1="50" x2="64" y2="50"></line>
+        </svg>
+      </div>
       <h1 class="land-mark" aria-label="Elysian Arca">
         <span class="mark-word" aria-hidden="true">
           <span>E</span><span>L</span><span>Y</span><span>S</span><span>I</span><span>A</span><span>N</span>
