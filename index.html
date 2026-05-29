@@ -1001,6 +1001,50 @@ stroke-width='6'/>
       line-height: 1.6;
     }
 
+    /* ─── SYNC KEY MANAGEMENT ─────────────────────────────────────────────────── */
+    .sync-state-card {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .sync-pill {
+      flex: 1;
+      min-width: 220px;
+      border: 1px solid rgba(122, 168, 196, .18);
+      background: rgba(122, 168, 196, .06);
+      color: var(--text-3);
+      border-radius: var(--r-xs);
+      padding: .62rem .85rem;
+      font-size: .76rem;
+      letter-spacing: .05em;
+    }
+
+    .sync-pill.sealed {
+      border-color: rgba(122, 168, 196, .32);
+      background: rgba(122, 168, 196, .1);
+      color: var(--silver-lt);
+    }
+
+    .sync-pill.missing {
+      border-color: rgba(176, 96, 64, .26);
+      background: rgba(176, 96, 64, .07);
+      color: #d49070;
+    }
+
+    .sync-key-panel {
+      display: none;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      margin: .9rem 0 1rem;
+    }
+
+    .sync-key-panel.on {
+      display: block;
+    }
+
     /* ─── TOAST ────────────────────────────────────────────────────────────────── */
     #toast {
       position: fixed;
@@ -1262,16 +1306,23 @@ stroke-width='6'/>
       </div>
       <div class="bk-card">
         <div class="bk-title">Registrum Nubis</div>
-        <div class="bk-desc">Store your Sync Key privately on this device, then call or seal the cloud ledger.</div>
+        <div class="bk-desc">Call or seal the cloud ledger. Manage the Sync Key only when setting up this device.</div>
 
-        <div class="fgrp" style="margin-bottom:1rem">
-          <label>Sync Key</label>
-          <input type="password" id="syncKeyInput" placeholder="Paste GitHub Gist token">
+        <div class="sync-state-card">
+          <div id="syncKeyStatus" class="sync-pill">Checking Sync Key…</div>
+          <button class="btn btn-gh" id="syncManageBtn" onclick="toggleSyncKeyPanel()">Manage Sync Key</button>
         </div>
 
-        <div class="brow">
-          <button class="btn btn-s" onclick="saveSyncKey()">Save Sync Key</button>
-          <button class="btn btn-gh" onclick="clearSyncKey()">Clear Sync Key</button>
+        <div id="syncKeyPanel" class="sync-key-panel">
+          <div class="fgrp" style="margin-bottom:1rem">
+            <label>Sync Key</label>
+            <input type="password" id="syncKeyInput" placeholder="Paste GitHub Gist token">
+          </div>
+
+          <div class="brow">
+            <button class="btn btn-s" onclick="saveSyncKey()">Save Sync Key</button>
+            <button class="btn btn-gh" onclick="clearSyncKey()">Clear Sync Key</button>
+          </div>
         </div>
 
         <div class="brow">
@@ -1327,7 +1378,47 @@ stroke-width='6'/>
 
       localStorage.setItem(TOKEN_KEY, token);
       el.value = '';
-      toast('Sync Key saved.');
+
+      const panel = document.getElementById('syncKeyPanel');
+      if (panel) panel.classList.remove('on');
+
+      refreshSyncKeyUI();
+      toast('Key sealed on this device.');
+    }
+
+    function clearSyncKey() {
+      localStorage.removeItem(TOKEN_KEY);
+      refreshSyncKeyUI();
+      toast('Sync Key cleared.');
+    }
+
+    function refreshSyncKeyUI() {
+      const status = document.getElementById('syncKeyStatus');
+      const panel = document.getElementById('syncKeyPanel');
+      const btn = document.getElementById('syncManageBtn');
+
+      if (!status) return;
+
+      const sealed = !!getGithubToken();
+
+      status.textContent = sealed
+        ? 'Sync Key sealed on this device.'
+        : 'No Sync Key sealed on this device yet.';
+
+      status.classList.toggle('sealed', sealed);
+      status.classList.toggle('missing', !sealed);
+
+      if (btn && panel) {
+        btn.textContent = panel.classList.contains('on') ? 'Hide Sync Key' : 'Manage Sync Key';
+      }
+    }
+
+    function toggleSyncKeyPanel() {
+      const panel = document.getElementById('syncKeyPanel');
+      if (!panel) return;
+
+      panel.classList.toggle('on');
+      refreshSyncKeyUI();
     }
 
     function clearSyncKey() {
@@ -2197,6 +2288,7 @@ stroke-width='6'/>
       document.getElementById('ar-new').value = lr ? (+lr.newTotal || 0).toFixed(2) : '';
       document.getElementById('ar-next').value = ds(new Date(new Date((lr?.nextMaturityDate || today()) + 'T12:00:00').getTime() + 30 * 86400000));
 
+      refreshSyncKeyUI();
       renderAll();
       initCloudSync();
     }
