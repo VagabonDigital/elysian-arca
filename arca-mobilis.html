@@ -1,0 +1,2771 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+<rect width='100' height='100' rx='18' fill='%23030b1a'/>
+<polygon points='50,18 82,50 50,82 18,50'
+fill='none'
+stroke='%23d4af37'
+stroke-width='6'/>
+</svg>">
+  <title>ELYSIAN ARCA MOBILIS</title>
+  <style>
+    /* ─── RESET & ROOT ──────────────────────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #070a10;
+      --bg-2: #0b0f1a;
+      --bg-card: #0e1322;
+      --bg-card-hi: #121828;
+      --bg-input: #090d18;
+      --border: rgba(255, 255, 255, 0.13);
+      --border-hi: rgba(255, 255, 255, 0.18);
+
+      --gold: #c8a44a;
+      --gold-lt: #e0c46e;
+      --gold-dim: rgba(200, 164, 74, 0.14);
+      --gold-glow: rgba(200, 164, 74, 0.18);
+
+      --teal: #44c2be;
+      --teal-lt: #72d9d5;
+      --teal-dim: rgba(68, 194, 190, 0.12);
+
+      --silver: #7aa8c4;
+      --silver-lt: #a5c8dc;
+      --silver-dim: rgba(122, 168, 196, 0.12);
+
+      --text: #ddd8ce;
+      --text-2: #92a4b8;
+      --text-3: #7b8aa0;
+      --text-4: #222a37;
+
+      --danger: #b06040;
+      --success: #4e8a68;
+
+      --r: 14px;
+      --r-sm: 9px;
+      --r-xs: 6px;
+
+      --ff-serif: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+      --ff-sans: "Trebuchet MS", "Gill Sans MT", Calibri, Verdana, sans-serif;
+      --ff-mono: "Courier New", Courier, monospace;
+
+      /* Safe area insets for notched devices */
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ff-sans);
+      font-size: 15px;
+      line-height: 1.65;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Prevent accidental zoom on input focus (iOS) */
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+
+    /* ─── AMBIENT BACKGROUND ────────────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 90% 55% at 50% 0%, rgba(200, 164, 74, 0.035) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 10% 100%, rgba(68, 194, 190, 0.025) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 35% at 90% 60%, rgba(122, 168, 196, 0.025) 0%, transparent 55%);
+      animation: ambientPulse 14s ease-in-out infinite alternate;
+    }
+
+    @keyframes ambientPulse {
+      from {
+        opacity: .5;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* ─── LANDING ───────────────────────────────────────────────────────────── */
+    #landing {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      transition: opacity .9s ease, visibility .9s ease;
+      padding-top: var(--safe-top);
+    }
+
+    #landing.gone {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .land-glow {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(200, 164, 74, .07) 0%, transparent 65%);
+      animation: ambientPulse 10s ease-in-out infinite alternate;
+    }
+
+    .land-inner {
+      position: relative;
+      text-align: center;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .land-mark {
+      font-family: var(--ff-serif);
+      font-size: clamp(2.4rem, 12vw, 3.8rem);
+      color: var(--gold);
+      font-weight: normal;
+      line-height: 1.15;
+      text-align: center;
+      animation: fadeUp .9s ease both;
+    }
+
+    .mark-word {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: .28em;
+    }
+
+    .mark-word+.mark-word {
+      margin-top: .12em;
+    }
+
+    .land-sub {
+      margin-top: .6rem;
+      font-size: .65rem;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      animation: fadeUp .9s .25s ease both;
+    }
+
+    .land-rule {
+      width: 52px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(200, 164, 74, .45), transparent);
+      margin: 1.8rem auto;
+      animation: fadeUp .9s .45s ease both;
+    }
+
+    .land-msg {
+      font-family: var(--ff-serif);
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--text-2);
+      margin-bottom: 3rem;
+      line-height: 1.6;
+      animation: fadeUp .9s .65s ease both;
+    }
+
+    .land-btn {
+      display: inline-block;
+      padding: .88rem 2.8rem;
+      border: 1px solid var(--gold);
+      background: var(--gold-dim);
+      color: var(--gold-lt);
+      font-family: var(--ff-sans);
+      font-size: .72rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: var(--r-sm);
+      transition: background .25s, box-shadow .25s;
+      animation: fadeUp .9s .9s ease both;
+      min-height: 52px;
+      min-width: 180px;
+    }
+
+    .land-btn:active {
+      background: rgba(200, 164, 74, .3);
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ─── APP SHELL ─────────────────────────────────────────────────────────── */
+    #app {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      min-height: 100dvh;
+      opacity: 0;
+      transition: opacity .7s ease;
+      /* Reserve space for bottom nav */
+      padding-bottom: calc(64px + var(--safe-bottom));
+    }
+
+    #app.vis {
+      opacity: 1;
+    }
+
+    #app.off {
+      display: none;
+    }
+
+    /* ─── HEADER ────────────────────────────────────────────────────────────── */
+    .hd {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: calc(.7rem + var(--safe-top)) 1.2rem .7rem;
+      background: rgba(7, 10, 16, .92);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hd-name {
+      font-family: var(--ff-serif);
+      font-size: .9rem;
+      letter-spacing: .3em;
+      color: var(--gold);
+      font-weight: normal;
+    }
+
+    .hd-date {
+      font-family: var(--ff-mono);
+      font-size: .6rem;
+      color: var(--text-3);
+      letter-spacing: .07em;
+      text-align: right;
+    }
+
+    /* ─── BOTTOM NAV ────────────────────────────────────────────────────────── */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: stretch;
+      background: rgba(7, 10, 16, .95);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-top: 1px solid var(--border);
+      padding-bottom: var(--safe-bottom);
+    }
+
+    .bnav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: .55rem .3rem .5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-3);
+      font-family: var(--ff-sans);
+      font-size: .52rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      transition: color .2s;
+      -webkit-tap-highlight-color: transparent;
+      min-height: 56px;
+    }
+
+    .bnav-btn .bi {
+      font-size: 1.1rem;
+      line-height: 1;
+      transition: transform .15s;
+    }
+
+    .bnav-btn.on {
+      color: var(--text);
+    }
+
+    .bnav-btn.on .bi {
+      transform: translateY(-1px);
+    }
+
+    .bnav-btn[data-sec="dashboard"].on .bi {
+      color: var(--gold);
+    }
+
+    .bnav-btn[data-sec="arcella"].on .bi {
+      color: var(--silver);
+    }
+
+    .bnav-btn[data-sec="daily"].on .bi {
+      color: var(--silver);
+    }
+
+    .bnav-btn[data-sec="aether"].on .bi {
+      color: var(--teal);
+    }
+
+    .bnav-btn[data-sec="ritual"].on .bi {
+      color: var(--gold);
+    }
+
+    .bnav-btn[data-sec="more"].on .bi {
+      color: var(--text-2);
+    }
+
+    /* ─── QUICK ACTION BUTTON (FAB-style for Arcella) ───────────────────────── */
+    /* Handled via the Arcella tab's quick-record section */
+
+    /* ─── SECTIONS ──────────────────────────────────────────────────────────── */
+    .sec {
+      display: none;
+      padding: 1.4rem 1rem 1rem;
+      max-width: 600px;
+      margin: 0 auto;
+      animation: secIn .3s ease both;
+    }
+
+    .sec.on {
+      display: block;
+    }
+
+    @keyframes secIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* ─── DASHBOARD ─────────────────────────────────────────────────────────── */
+    .status-line {
+      text-align: center;
+      padding: .9rem 0 1.2rem;
+      font-family: var(--ff-serif);
+      font-style: italic;
+      font-size: .95rem;
+      color: var(--text-2);
+    }
+
+    /* Primary stat cards — 2-col grid */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .8rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .scard {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1rem .95rem;
+      transition: border-color .25s;
+    }
+
+    .scard.g {
+      border-color: rgba(200, 164, 74, .34);
+    }
+
+    .scard.t {
+      border-color: rgba(68, 194, 190, .30);
+    }
+
+    .scard.s {
+      border-color: rgba(122, 168, 196, .30);
+    }
+
+    .scard-lbl {
+      font-size: .58rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: .4rem;
+    }
+
+    .scard-val {
+      font-family: var(--ff-mono);
+      font-size: 1.55rem;
+      line-height: 1.1;
+      margin-bottom: .25rem;
+    }
+
+    .scard.g .scard-val {
+      color: var(--gold-lt);
+    }
+
+    .scard.t .scard-val {
+      color: var(--teal-lt);
+    }
+
+    .scard.s .scard-val {
+      color: var(--silver-lt);
+    }
+
+    .scard-sub {
+      font-size: .65rem;
+      color: var(--text-3);
+    }
+
+    /* Wide card spanning both cols */
+    .scard.wide {
+      grid-column: 1 / -1;
+    }
+
+    /* ─── SECTION HEADER ────────────────────────────────────────────────────── */
+    .sh {
+      font-family: var(--ff-serif);
+      font-size: 1rem;
+      font-weight: normal;
+      letter-spacing: .1em;
+      color: var(--text-2);
+      margin: 1.5rem 0 .9rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sh:first-child {
+      margin-top: 0;
+    }
+
+    /* ─── SUMMARY STRIP ─────────────────────────────────────────────────────── */
+    .sum-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .7rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .sum-item {
+      background: var(--bg-card);
+      border: 1px solid rgba(122, 168, 196, .30);
+      border-radius: var(--r-sm);
+      padding: .8rem .9rem;
+    }
+
+    .sum-n {
+      font-family: var(--ff-mono);
+      font-size: 1.15rem;
+      margin-bottom: .2rem;
+    }
+
+    .sum-l {
+      font-size: .6rem;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+
+    /* ─── PAYOUT CARDS ──────────────────────────────────────────────────────── */
+    .pay-list {
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+    }
+
+    .pay-item {
+      background: var(--bg-card);
+      border: 1px solid rgba(68, 194, 190, .30);
+      border-radius: var(--r-sm);
+      padding: .8rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+    }
+
+    .pay-left {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pay-date {
+      font-family: var(--ff-mono);
+      font-size: .68rem;
+      color: var(--text-3);
+      margin-bottom: .15rem;
+    }
+
+    .pay-note {
+      font-size: .78rem;
+      color: var(--text-2);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pay-amt {
+      font-family: var(--ff-mono);
+      font-size: 1.1rem;
+      color: var(--teal-lt);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ─── QUICK ARCELLA CARD ────────────────────────────────────────────────── */
+    .quick-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(122, 168, 196, .30);
+      border-radius: var(--r);
+      padding: 1.2rem 1.1rem 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .quick-balance-row {
+      display: flex;
+      align-items: baseline;
+      gap: .7rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .quick-bal-lbl {
+      font-size: .6rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+
+    .quick-bal-val {
+      font-family: var(--ff-mono);
+      font-size: 2rem;
+      color: var(--silver-lt);
+      line-height: 1;
+    }
+
+    .quick-type-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .6rem;
+      margin-bottom: .9rem;
+    }
+
+    .quick-type-btn {
+      padding: .75rem .5rem;
+      border-radius: var(--r-xs);
+      font-family: var(--ff-sans);
+      font-size: .7rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--text-3);
+      transition: all .18s;
+      min-height: 48px;
+    }
+
+    .quick-type-btn.dep.active {
+      border-color: rgba(78, 138, 104, .7);
+      background: rgba(78, 138, 104, .15);
+      color: #82c9a0;
+    }
+
+    .quick-type-btn.with.active {
+      border-color: rgba(176, 96, 64, .6);
+      background: rgba(176, 96, 64, .12);
+      color: #d49070;
+    }
+
+    .quick-amt-row {
+      display: flex;
+      gap: .6rem;
+      margin-bottom: .7rem;
+    }
+
+    .quick-amt-row input {
+      flex: 1;
+    }
+
+    .quick-note-row {
+      margin-bottom: .9rem;
+    }
+
+    .quick-save-btn {
+      width: 100%;
+      padding: .9rem;
+      border-radius: var(--r-xs);
+      font-family: var(--ff-sans);
+      font-size: .72rem;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      cursor: pointer;
+      background: var(--silver-dim);
+      border: 1px solid rgba(122, 168, 196, .5);
+      color: var(--silver-lt);
+      transition: background .2s, box-shadow .2s;
+      min-height: 52px;
+    }
+
+    .quick-save-btn:active {
+      background: rgba(122, 168, 196, .25);
+    }
+
+    /* Recent Arcella transactions list */
+    .arc-tx-list {
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+    }
+
+    .arc-tx-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: .8rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    .arc-tx-dir {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .9rem;
+      flex-shrink: 0;
+    }
+
+    .arc-tx-dir.dep {
+      background: rgba(78, 138, 104, .15);
+      color: #82c9a0;
+    }
+
+    .arc-tx-dir.with {
+      background: rgba(176, 96, 64, .12);
+      color: #d49070;
+    }
+
+    .arc-tx-dir.none-tx {
+      background: rgba(122, 168, 196, .08);
+      color: var(--text-3);
+    }
+
+    .arc-tx-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .arc-tx-meta {
+      font-size: .65rem;
+      color: var(--text-3);
+      font-family: var(--ff-mono);
+      margin-bottom: .1rem;
+    }
+
+    .arc-tx-note {
+      font-size: .78rem;
+      color: var(--text-2);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .arc-tx-amt {
+      font-family: var(--ff-mono);
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .arc-tx-amt.dep {
+      color: #82c9a0;
+    }
+
+    .arc-tx-amt.with {
+      color: #d49070;
+    }
+
+    .arc-tx-acts {
+      display: flex;
+      gap: .3rem;
+      flex-shrink: 0;
+    }
+
+    /* ─── FORMS ─────────────────────────────────────────────────────────────── */
+    .fcard {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.2rem 1.1rem 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .ftitle {
+      font-family: var(--ff-serif);
+      font-size: 1rem;
+      font-weight: normal;
+      letter-spacing: .12em;
+      margin-bottom: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .ftitle::before {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 1.1em;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .ftitle.g {
+      color: var(--gold-lt);
+    }
+
+    .ftitle.g::before {
+      background: var(--gold);
+    }
+
+    .ftitle.t {
+      color: var(--teal-lt);
+    }
+
+    .ftitle.t::before {
+      background: var(--teal);
+    }
+
+    .ftitle.s {
+      color: var(--silver-lt);
+    }
+
+    .ftitle.s::before {
+      background: var(--silver);
+    }
+
+    /* Stack all form fields vertically on mobile */
+    .fgrid {
+      display: flex;
+      flex-direction: column;
+      gap: .85rem;
+    }
+
+    /* Two-column row when needed */
+    .frow2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+    }
+
+    .fgrp {
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+    }
+
+    label {
+      font-size: .6rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+
+    input[type=text],
+    input[type=date],
+    input[type=number],
+    select,
+    textarea {
+      background: var(--bg-input);
+      border: 1px solid rgba(255, 255, 255, .09);
+      border-radius: var(--r-xs);
+      color: var(--text);
+      font-family: var(--ff-sans);
+      padding: .65rem .85rem;
+      outline: none;
+      width: 100%;
+      transition: border-color .2s;
+      -webkit-appearance: none;
+      appearance: none;
+      min-height: 48px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: rgba(255, 255, 255, .22);
+    }
+
+    select option {
+      background: #111828;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+      line-height: 1.55;
+    }
+
+    .brow {
+      display: flex;
+      gap: .65rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      padding: .72rem 1.4rem;
+      border-radius: var(--r-xs);
+      font-family: var(--ff-sans);
+      font-size: .68rem;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background .2s, box-shadow .2s, color .2s;
+      white-space: nowrap;
+      min-height: 48px;
+    }
+
+    .btn-full {
+      width: 100%;
+      text-align: center;
+    }
+
+    .btn-g {
+      background: var(--gold-dim);
+      border-color: rgba(200, 164, 74, .6);
+      color: var(--gold-lt);
+    }
+
+    .btn-g:active {
+      background: rgba(200, 164, 74, .28);
+    }
+
+    .btn-t {
+      background: var(--teal-dim);
+      border-color: rgba(68, 194, 190, .6);
+      color: var(--teal-lt);
+    }
+
+    .btn-t:active {
+      background: rgba(68, 194, 190, .26);
+    }
+
+    .btn-s {
+      background: var(--silver-dim);
+      border-color: rgba(122, 168, 196, .6);
+      color: var(--silver-lt);
+    }
+
+    .btn-s:active {
+      background: rgba(122, 168, 196, .26);
+    }
+
+    .btn-gh {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-3);
+    }
+
+    .btn-gh:active {
+      color: var(--text-2);
+    }
+
+    .btn-dx {
+      background: transparent;
+      border-color: rgba(176, 96, 64, .3);
+      color: rgba(176, 96, 64, .7);
+    }
+
+    .btn-dx:active {
+      background: rgba(176, 96, 64, .12);
+      color: var(--danger);
+    }
+
+    /* ─── EDIT BANNER ───────────────────────────────────────────────────────── */
+    .eb {
+      display: none;
+      background: rgba(200, 164, 74, .07);
+      border: 1px solid rgba(200, 164, 74, .2);
+      border-radius: var(--r-xs);
+      padding: .55rem 1rem;
+      margin-bottom: .9rem;
+      font-size: .75rem;
+      color: var(--gold);
+      letter-spacing: .04em;
+    }
+
+    .eb.on {
+      display: block;
+    }
+
+    /* ─── ENTRY ITEMS ───────────────────────────────────────────────────────── */
+    .elist {
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+    }
+
+    .eitem {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: .9rem 1rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: .8rem;
+      transition: border-color .2s;
+    }
+
+    .emain {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .etype {
+      font-size: .57rem;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      margin-bottom: .22rem;
+    }
+
+    .etype.g {
+      color: var(--gold);
+    }
+
+    .etype.t {
+      color: var(--teal);
+    }
+
+    .etype.s {
+      color: var(--silver);
+    }
+
+    .edate {
+      font-family: var(--ff-mono);
+      font-size: .7rem;
+      color: var(--text-3);
+      margin-bottom: .3rem;
+    }
+
+    .ebody {
+      font-size: .82rem;
+      color: var(--text-2);
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .eacts {
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+      flex-shrink: 0;
+      padding-top: .05rem;
+    }
+
+    .ebtn {
+      padding: .32rem .72rem;
+      font-size: .58rem;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+      border-radius: 4px;
+      cursor: pointer;
+      background: none;
+      font-family: var(--ff-sans);
+      transition: all .18s;
+      white-space: nowrap;
+      min-height: 36px;
+    }
+
+    .ebtn-e {
+      border: 1px solid rgba(255, 255, 255, .1);
+      color: var(--text-3);
+    }
+
+    .ebtn-e:active {
+      color: var(--text);
+      border-color: rgba(255, 255, 255, .25);
+    }
+
+    .ebtn-d {
+      border: 1px solid rgba(176, 96, 64, .2);
+      color: rgba(176, 96, 64, .55);
+    }
+
+    .ebtn-d:active {
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    /* ─── TIMELINE ──────────────────────────────────────────────────────────── */
+    .tl {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+
+    .tl-row {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+
+    .tl-date {
+      font-family: var(--ff-mono);
+      font-size: .63rem;
+      color: var(--text-3);
+      width: 76px;
+      flex-shrink: 0;
+    }
+
+    .tl-wrap {
+      flex: 1;
+      height: 16px;
+      background: rgba(200, 164, 74, .06);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .tl-bar {
+      height: 100%;
+      background: linear-gradient(90deg, rgba(200, 164, 74, .4), var(--gold));
+      border-radius: 3px;
+      transition: width .7s ease;
+    }
+
+    .tl-val {
+      font-family: var(--ff-mono);
+      font-size: .72rem;
+      color: var(--gold);
+      width: 78px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ─── EMPTY ─────────────────────────────────────────────────────────────── */
+    .empty {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-4);
+      font-family: var(--ff-serif);
+      font-style: italic;
+      font-size: .9rem;
+    }
+
+    /* ─── BACKUP (ARCHIVE) ──────────────────────────────────────────────────── */
+    .bk-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.2rem 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .bk-title {
+      font-size: .63rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: .5rem;
+    }
+
+    .bk-desc {
+      font-size: .82rem;
+      color: var(--text-2);
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    /* ─── MORE SECTION ──────────────────────────────────────────────────────── */
+    /* Chronicle + Archive live here on mobile */
+
+    /* ─── TOAST ─────────────────────────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: calc(72px + var(--safe-bottom) + .5rem);
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      background: var(--bg-card-hi);
+      border: 1px solid rgba(200, 164, 74, .3);
+      color: var(--gold-lt);
+      padding: .6rem 1.4rem;
+      border-radius: var(--r-sm);
+      font-size: .74rem;
+      letter-spacing: .07em;
+      z-index: 300;
+      opacity: 0;
+      transition: opacity .28s, transform .28s;
+      pointer-events: none;
+      white-space: nowrap;
+      max-width: calc(100vw - 2rem);
+      text-align: center;
+    }
+
+    #toast.on {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ─── SCROLLBAR ─────────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar {
+      width: 3px;
+      height: 3px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, .08);
+      border-radius: 99px;
+    }
+
+    /* ─── ARCELLA MODAL (for editing quick transactions) ────────────────────── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: rgba(7, 10, 16, .88);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: flex-end;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s;
+    }
+
+    .modal-backdrop.on {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-sheet {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: var(--r) var(--r) 0 0;
+      padding: 1.3rem 1.2rem calc(1.2rem + var(--safe-bottom));
+      transform: translateY(20px);
+      transition: transform .3s cubic-bezier(.22, .68, 0, 1.2);
+    }
+
+    .modal-backdrop.on .modal-sheet {
+      transform: translateY(0);
+    }
+
+    .modal-title {
+      font-family: var(--ff-serif);
+      font-size: .95rem;
+      color: var(--silver-lt);
+      letter-spacing: .12em;
+      margin-bottom: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-close {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-3);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-size: .8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ─── MISC UTILITIES ────────────────────────────────────────────────────── */
+    .mt1 {
+      margin-top: .8rem;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 1.2rem 0;
+    }
+
+    /* Accent color helpers */
+    .c-gold {
+      color: var(--gold-lt);
+    }
+
+    .c-teal {
+      color: var(--teal-lt);
+    }
+
+    .c-silver {
+      color: var(--silver-lt);
+    }
+
+
+    /* ─── CARD BORDER CONSISTENCY ───────────────────────────────────────────── */
+    .pay-item {
+      border-color: rgba(68, 194, 190, .30);
+    }
+
+    .quick-card,
+    .arc-tx-item,
+    .fcard,
+    .eitem,
+    .bk-card,
+    .modal-sheet {
+      border-color: rgba(122, 168, 196, .30);
+    }
+
+    .btn-gh,
+    .modal-close,
+    .quick-type-btn {
+      border-color: rgba(122, 168, 196, .24);
+    }
+
+    body.day-mode .pay-item {
+      border-color: rgba(22, 125, 122, .28);
+    }
+
+    body.day-mode .quick-card,
+    body.day-mode .arc-tx-item,
+    body.day-mode .fcard,
+    body.day-mode .eitem,
+    body.day-mode .bk-card,
+    body.day-mode .modal-sheet {
+      border-color: rgba(73, 111, 135, .28);
+    }
+
+    body.day-mode .btn-gh,
+    body.day-mode .modal-close,
+    body.day-mode .quick-type-btn {
+      border-color: rgba(73, 111, 135, .24);
+    }
+
+    /* ─── DAY / NIGHT MODE ──────────────────────────────────────────────────── */
+    .hd-right {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+    }
+
+    .mode-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, .025);
+      color: var(--text-2);
+      font-family: var(--ff-serif);
+      font-size: 1rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color .2s, background .2s, color .2s;
+      flex-shrink: 0;
+    }
+
+    .mode-btn:active {
+      border-color: var(--border-hi);
+      background: rgba(255, 255, 255, .07);
+      color: var(--text);
+    }
+
+    body.day-mode {
+      --bg: #d8d0bf;
+      --bg-2: #cfc6b5;
+      --bg-card: #ece5d8;
+      --bg-card-hi: #f4ecdd;
+      --bg-input: #f7efe2;
+      --border: rgba(40, 48, 62, 0.18);
+      --border-hi: rgba(40, 48, 62, 0.30);
+
+      --gold: #8b6f23;
+      --gold-lt: #6f5516;
+      --gold-dim: rgba(139, 111, 35, 0.13);
+      --gold-glow: rgba(139, 111, 35, 0.16);
+
+      --teal: #167d7a;
+      --teal-lt: #0f6866;
+      --teal-dim: rgba(22, 125, 122, 0.11);
+
+      --silver: #496f87;
+      --silver-lt: #355f7a;
+      --silver-dim: rgba(73, 111, 135, 0.12);
+
+      --text: #172033;
+      --text-2: #354257;
+      --text-3: #627086;
+      --text-4: #8b96a6;
+
+      --danger: #9f5136;
+      --success: #3d7656;
+    }
+
+    body.day-mode::before {
+      background:
+        radial-gradient(ellipse 90% 55% at 50% 0%, rgba(139, 111, 35, 0.12) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 10% 100%, rgba(22, 125, 122, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 35% at 90% 60%, rgba(73, 111, 135, 0.08) 0%, transparent 55%);
+    }
+
+    body.day-mode #landing {
+      background: var(--bg);
+    }
+
+    body.day-mode .land-glow {
+      background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(139, 111, 35, .16) 0%, transparent 65%);
+    }
+
+    body.day-mode .hd,
+    body.day-mode .bottom-nav {
+      background: rgba(216, 208, 191, .88);
+      border-color: var(--border);
+    }
+
+    body.day-mode .scard,
+    body.day-mode .sum-item,
+    body.day-mode .fcard,
+    body.day-mode .quick-card,
+    body.day-mode .arc-tx-item,
+    body.day-mode .eitem,
+    body.day-mode .bk-card {
+      box-shadow: 0 8px 24px rgba(40, 48, 62, .045);
+    }
+
+    body.day-mode .scard.g {
+      border-color: rgba(139, 111, 35, .34);
+    }
+
+    body.day-mode .scard.t {
+      border-color: rgba(22, 125, 122, .28);
+    }
+
+    body.day-mode .scard.s {
+      border-color: rgba(73, 111, 135, .28);
+    }
+
+    body.day-mode .sum-item {
+      border-color: rgba(73, 111, 135, .28);
+    }
+
+    body.day-mode input[type=text],
+    body.day-mode input[type=date],
+    body.day-mode input[type=number],
+    body.day-mode select,
+    body.day-mode textarea {
+      border-color: rgba(40, 48, 62, .16);
+    }
+
+    body.day-mode .modal-backdrop {
+      background: rgba(23, 32, 51, .38);
+    }
+
+    body.day-mode .modal-sheet {
+      background: var(--bg-card-hi);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════ LANDING -->
+  <div id="landing">
+    <div class="land-glow"></div>
+    <div class="land-inner">
+      <h1 class="land-mark" aria-label="Elysian Arca">
+        <span class="mark-word" aria-hidden="true">
+          <span>E</span><span>L</span><span>Y</span><span>S</span><span>I</span><span>A</span><span>N</span>
+        </span>
+        <span class="mark-word" aria-hidden="true">
+          <span>A</span><span>R</span><span>C</span><span>A</span>
+        </span>
+      </h1>
+      <div class="land-sub">Personal Treasury Terminal</div>
+      <div class="land-rule"></div>
+      <div class="land-msg" id="landMsg"></div>
+      <button class="land-btn" onclick="enterArca()">Enter Arca</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ APP -->
+  <div id="app" class="off">
+
+    <header class="hd">
+      <span class="hd-name">ELYSIAN ARCA</span>
+      <div class="hd-right">
+        <span class="hd-date" id="hdDate"></span>
+        <button class="mode-btn" id="modeBtn" onclick="toggleMode()" aria-label="Toggle day and night mode">☾</button>
+      </div>
+    </header>
+
+    <!-- ── DASHBOARD ── -->
+    <div class="sec on" id="sec-dashboard">
+      <div class="status-line" id="statusLine">Awaiting today's chronicle entry.</div>
+      <div class="stat-grid" id="statGrid"></div>
+      <div class="sh">Last 30 Days</div>
+      <div class="sum-row" id="sum30"></div>
+      <div class="sh">Aether Vitis — Last 4 Payouts</div>
+      <div id="last4"></div>
+    </div>
+
+    <!-- ── LA ARCELLA (Quick Movements) ── -->
+    <div class="sec" id="sec-arcella">
+      <!-- Balance + quick record -->
+      <div class="quick-card">
+        <div class="quick-balance-row">
+          <div>
+            <div class="quick-bal-lbl">La Arcella</div>
+            <div class="quick-bal-val" id="quickBal">$0.00</div>
+          </div>
+        </div>
+
+        <div class="quick-type-row">
+          <button class="quick-type-btn dep" id="btnDep" onclick="setQuickType('deposit')">↑ Deposit</button>
+          <button class="quick-type-btn with" id="btnWith" onclick="setQuickType('withdrawal')">↓ Withdrawal</button>
+        </div>
+
+        <div class="quick-amt-row">
+          <div class="fgrp" style="flex:1">
+            <label>Amount</label>
+            <input type="number" id="qa-amt" min="0" step="0.01" placeholder="0.00" oninput="updateQuickPreview()">
+          </div>
+          <div class="fgrp" style="flex:1">
+            <label>Balance After</label>
+            <input type="text" id="qa-preview" readonly placeholder="$0.00" style="color:var(--silver-lt);opacity:.85">
+          </div>
+        </div>
+
+        <div class="quick-note-row fgrp">
+          <label>Note (optional)</label>
+          <input type="text" id="qa-note" placeholder="What was this for?">
+        </div>
+
+        <button class="quick-save-btn" onclick="saveQuickArcella()">Record Movement</button>
+      </div>
+
+      <!-- Recent transactions from all sources -->
+      <div class="sh">La Arcella Movements</div>
+      <div class="arc-tx-list" id="arcellaHistory"></div>
+    </div>
+
+    <!-- ── DAILY LOG ── -->
+    <div class="sec" id="sec-daily">
+      <div class="eb" id="ebDaily">Editing entry — submit to update the ledger.</div>
+      <div class="fcard">
+        <div class="ftitle s">Daily Check-In</div>
+        <form id="fDaily">
+          <div class="fgrid">
+            <div class="frow2">
+              <div class="fgrp">
+                <label>Date</label>
+                <input type="date" id="di-date" required>
+              </div>
+              <div class="fgrp">
+                <label>Alcohol Status</label>
+                <select id="di-alc">
+                  <option value="sober">Sober</option>
+                  <option value="drank">Drank</option>
+                  <option value="binge">Binge</option>
+                </select>
+              </div>
+            </div>
+            <div class="frow2">
+              <div class="fgrp">
+                <label>Workout</label>
+                <select id="di-wk">
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+              <div class="fgrp">
+                <label>Arcella Movement</label>
+                <select id="di-tx" onchange="toggleTx()">
+                  <option value="none">None</option>
+                  <option value="deposit">Deposit</option>
+                  <option value="withdrawal">Withdrawal</option>
+                </select>
+              </div>
+            </div>
+            <div class="frow2" id="txFields" style="display:none">
+              <div class="fgrp" id="txAmt">
+                <label>Amount</label>
+                <input type="number" id="di-amt" min="0" step="0.01" placeholder="0.00">
+              </div>
+              <div class="fgrp" id="txBal">
+                <label>Balance After</label>
+                <input type="text" id="di-bal" readonly placeholder="$0.00">
+              </div>
+            </div>
+            <div class="fgrp">
+              <label>Note (optional)</label>
+              <textarea id="di-note" placeholder="Any thoughts for the record…"></textarea>
+            </div>
+          </div>
+          <div class="brow">
+            <button type="submit" class="btn btn-s">Record Entry</button>
+            <button type="button" class="btn btn-gh" onclick="cancelEdit('daily')">Cancel</button>
+          </div>
+        </form>
+      </div>
+      <div class="sh">Recent Check-Ins</div>
+      <div class="elist" id="listDaily"></div>
+    </div>
+
+    <!-- ── AETHER VITIS ── -->
+    <div class="sec" id="sec-aether">
+      <div class="eb" id="ebAether">Editing entry — submit to update the ledger.</div>
+      <div class="fcard">
+        <div class="ftitle t">Weekly Aether Vitis Payout</div>
+        <form id="fAether">
+          <div class="fgrid">
+            <div class="frow2">
+              <div class="fgrp">
+                <label>Date</label>
+                <input type="date" id="av-date" required>
+              </div>
+              <div class="fgrp">
+                <label>Cambly Payout</label>
+                <input type="number" id="av-amt" min="0" step="0.01" placeholder="0.00" required>
+              </div>
+            </div>
+            <div class="fgrp">
+              <label>Note (optional)</label>
+              <textarea id="av-note" placeholder="Notes about this payout cycle…"></textarea>
+            </div>
+          </div>
+          <div class="brow">
+            <button type="submit" class="btn btn-t">Record Payout</button>
+            <button type="button" class="btn btn-gh" onclick="cancelEdit('aether')">Cancel</button>
+          </div>
+        </form>
+      </div>
+      <div class="sh">Payout History</div>
+      <div class="elist" id="listAether"></div>
+    </div>
+
+    <!-- ── ARCA RITUAL ── -->
+    <div class="sec" id="sec-ritual">
+      <div class="eb" id="ebRitual">Editing ritual — submit to update the treasury.</div>
+      <div class="fcard">
+        <div class="ftitle g">Elysian Arca Maturity Ritual</div>
+        <form id="fRitual">
+          <div class="fgrid">
+            <div class="frow2">
+              <div class="fgrp">
+                <label>Maturity Date</label>
+                <input type="date" id="ar-date" required>
+              </div>
+              <div class="fgrp">
+                <label>Previous Total</label>
+                <input type="number" id="ar-prev" step="0.01" placeholder="0.00" required>
+              </div>
+            </div>
+            <div class="frow2">
+              <div class="fgrp">
+                <label>Amount Added</label>
+                <input type="number" id="ar-add" step="0.01" placeholder="0.00" required>
+              </div>
+              <div class="fgrp">
+                <label>New Total</label>
+                <input type="number" id="ar-new" step="0.01" placeholder="auto-calc" required>
+              </div>
+            </div>
+            <div class="fgrp">
+              <label>Next Maturity Date</label>
+              <input type="date" id="ar-next">
+            </div>
+            <div class="fgrp">
+              <label>Note (optional)</label>
+              <textarea id="ar-note" placeholder="Ritual notes, context, intentions…"></textarea>
+            </div>
+          </div>
+          <div class="brow">
+            <button type="submit" class="btn btn-g">Seal the Ritual</button>
+            <button type="button" class="btn btn-gh" onclick="cancelEdit('ritual')">Cancel</button>
+          </div>
+        </form>
+      </div>
+      <div class="sh">Treasury Timeline</div>
+      <div class="fcard" style="padding:1.1rem" id="timeline"></div>
+      <div class="sh">Ritual History</div>
+      <div class="elist" id="listRitual"></div>
+    </div>
+
+    <!-- ── MORE (Chronicle + Archive) ── -->
+    <div class="sec" id="sec-more">
+      <!-- Sub-tabs within More -->
+      <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1.2rem;">
+        <button class="bnav-sub on" data-sub="chronicle" onclick="goSub('chronicle')">Chronicle</button>
+        <button class="bnav-sub" data-sub="archive" onclick="goSub('archive')">Archive</button>
+      </div>
+
+      <!-- Chronicle -->
+      <div id="sub-chronicle" class="sub-sec on">
+        <div class="elist" id="listChronicle"></div>
+      </div>
+
+      <!-- Archive -->
+      <div id="sub-archive" class="sub-sec" style="display:none">
+        <div class="bk-card">
+          <div class="bk-title">Export Archive</div>
+          <div class="bk-desc">Download a complete JSON backup of all Elysian Arca data. This file is your treasury
+            ledger — keep it somewhere safe.</div>
+          <div class="brow">
+            <button class="btn btn-g btn-full" onclick="exportData()">Export JSON</button>
+          </div>
+        </div>
+        <div class="bk-card">
+          <div class="bk-title">Import Archive</div>
+          <div class="bk-desc">Restore from a previously exported JSON file. This will replace all current data — export
+            first if needed.</div>
+          <div class="brow">
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+            <button class="btn btn-s btn-full" onclick="document.getElementById('importFile').click()">Import
+              JSON</button>
+          </div>
+        </div>
+        <div class="bk-card">
+          <div class="bk-title">Registrum Nubis</div>
+          <div class="bk-desc">Manually call the cloud ledger into this device, or seal this device’s current ledger
+            into the cloud.</div>
+          <div class="brow">
+            <button class="btn btn-s btn-full" onclick="syncDownFromCloud()">Evoca Registrum</button>
+            <button class="btn btn-g btn-full" onclick="syncUpToCloud()">Signa Registrum</button>
+          </div>
+        </div>
+        <div class="bk-card">
+          <div class="bk-title">Danger Zone</div>
+          <div class="bk-desc">Permanently erase all stored data. The treasury will be empty. This action cannot be
+            undone — export first.</div>
+          <div class="brow">
+            <button class="btn btn-dx btn-full" onclick="clearAll()">Clear All Data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BOTTOM NAV ── -->
+    <nav class="bottom-nav">
+      <button class="bnav-btn on" data-sec="dashboard"><span class="bi">◈</span>Treasury</button>
+      <button class="bnav-btn" data-sec="arcella"> <span class="bi">◎</span>Arcella</button>
+      <button class="bnav-btn" data-sec="daily"> <span class="bi">✦</span>Daily</button>
+      <button class="bnav-btn" data-sec="aether"> <span class="bi">◆</span>Aether</button>
+      <button class="bnav-btn" data-sec="ritual"> <span class="bi">◇</span>Ritual</button>
+      <button class="bnav-btn" data-sec="more"> <span class="bi">≡</span>More</button>
+    </nav>
+
+  </div><!-- /app -->
+
+  <!-- Edit quick-arcella modal (for editing existing quick transactions) -->
+  <div class="modal-backdrop" id="editQModal">
+    <div class="modal-sheet">
+      <div class="modal-title">
+        <span>Edit Arcella Movement</span>
+        <button class="modal-close" onclick="closeEditQModal()">✕</button>
+      </div>
+      <div class="fgrid">
+        <div class="frow2">
+          <div class="fgrp">
+            <label>Type</label>
+            <select id="eq-type">
+              <option value="deposit">Deposit</option>
+              <option value="withdrawal">Withdrawal</option>
+            </select>
+          </div>
+          <div class="fgrp">
+            <label>Amount</label>
+            <input type="number" id="eq-amt" min="0" step="0.01" placeholder="0.00">
+          </div>
+        </div>
+        <div class="fgrp">
+          <label>Date</label>
+          <input type="date" id="eq-date">
+        </div>
+        <div class="fgrp">
+          <label>Note (optional)</label>
+          <input type="text" id="eq-note" placeholder="Note…">
+        </div>
+      </div>
+      <div class="brow mt1">
+        <button class="btn btn-s" style="flex:1" onclick="saveEditQModal()">Update Movement</button>
+        <button class="btn btn-gh" onclick="closeEditQModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <!-- Sub-tab style -->
+  <style>
+    .bnav-sub {
+      padding: .5rem 1.1rem;
+      font-size: .65rem;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      cursor: pointer;
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: none;
+      font-family: var(--ff-sans);
+      transition: color .2s, border-color .2s;
+    }
+
+    .bnav-sub.on {
+      color: var(--text);
+      border-bottom-color: var(--text-2);
+    }
+  </style>
+
+  <!-- ══════════════════════════════════════════════════════════ SCRIPT -->
+  <script>
+    'use strict';
+
+    /* ── CONSTANTS ──────────────────────────────────────────────────────────────── */
+    const KEY = 'elysian_arca_v1';
+    const THEME_KEY = 'elysian_arca_theme_v1';
+    const GIST_ID = '33b11a4a6e557cebdf47386735632b2c';
+    const GIST_FILE = 'elysian-arca-data.json';
+    const GITHUB_TOKEN = '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';
+    const MSGS = [
+      '"Continuity over chaos."',
+      '"The civilization survived another day."',
+      '"Small gains become empires."',
+      '"The treasury endures what the storm cannot."',
+      '"One day. One entry. One step forward."',
+      '"Stability is built in silence, entry by entry."'
+    ];
+
+    /* ── STATE ──────────────────────────────────────────────────────────────────── */
+    const editing = { daily: null, aether: null, ritual: null };
+    let editingQId = null;
+    let quickType = 'deposit'; // 'deposit' | 'withdrawal'
+
+    /* ── DAY / NIGHT MODE ───────────────────────────────────────────────────────── */
+    function applyMode(mode) {
+      const isDay = mode === 'day';
+      document.body.classList.toggle('day-mode', isDay);
+      const btn = document.getElementById('modeBtn');
+      if (btn) {
+        btn.textContent = isDay ? '☀' : '☾';
+        btn.setAttribute('aria-label', isDay ? 'Switch to night mode' : 'Switch to day mode');
+      }
+    }
+
+    function toggleMode() {
+      const isDay = document.body.classList.contains('day-mode');
+      const next = isDay ? 'night' : 'day';
+      localStorage.setItem(THEME_KEY, next);
+      applyMode(next);
+    }
+
+
+    /* ── DATA + CLOUD SYNC ─────────────────────────────────────────────────────── */
+    function load() {
+      try {
+        const r = localStorage.getItem(KEY);
+        const d = r ? JSON.parse(r) : {};
+        // Ensure all collections exist (backward-compatible)
+        if (!d.checkIns) d.checkIns = [];
+        if (!d.payouts) d.payouts = [];
+        if (!d.arcaRituals) d.arcaRituals = [];
+        if (!d.arcellaMovements) d.arcellaMovements = [];
+        return d;
+      } catch {
+        return { checkIns: [], payouts: [], arcaRituals: [], arcellaMovements: [] };
+      }
+    }
+    function save(d) {
+      if (!d.checkIns) d.checkIns = [];
+      if (!d.payouts) d.payouts = [];
+      if (!d.arcaRituals) d.arcaRituals = [];
+      if (!d.arcellaMovements) d.arcellaMovements = [];
+
+      d.updatedAt = new Date().toISOString();
+      d.syncVersion = 1;
+
+      localStorage.setItem(KEY, JSON.stringify(d));
+      queueCloudSync();
+    }
+    function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 10); }
+    let cloudSyncTimer = null;
+    let cloudSyncBusy = false;
+
+    function cloudHeaders() {
+      return {
+        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json'
+      };
+    }
+
+    function queueCloudSync() {
+      clearTimeout(cloudSyncTimer);
+      cloudSyncTimer = setTimeout(syncUpToCloud, 900);
+    }
+
+    async function fetchCloudData() {
+      const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+        headers: cloudHeaders()
+      });
+
+      if (!res.ok) throw new Error(`Cloud fetch failed: ${res.status}`);
+
+      const gist = await res.json();
+      const file = gist.files[GIST_FILE];
+
+      if (!file || !file.content) throw new Error('Cloud ledger file not found.');
+
+      return JSON.parse(file.content);
+    }
+
+    function saveLocalOnly(d) {
+      if (!d.checkIns) d.checkIns = [];
+      if (!d.payouts) d.payouts = [];
+      if (!d.arcaRituals) d.arcaRituals = [];
+      if (!d.arcellaMovements) d.arcellaMovements = [];
+      if (!d.updatedAt) d.updatedAt = '1970-01-01T00:00:00.000Z';
+      if (!d.syncVersion) d.syncVersion = 1;
+
+      localStorage.setItem(KEY, JSON.stringify(d));
+    }
+
+    async function syncDownFromCloud({ silent = false } = {}) {
+      try {
+        const cloud = await fetchCloudData();
+        const local = load();
+
+        const cloudTime = cloud.updatedAt || '1970-01-01T00:00:00.000Z';
+        const localTime = local.updatedAt || '1970-01-01T00:00:00.000Z';
+
+        if (cloudTime > localTime) {
+          saveLocalOnly(cloud);
+          renderAll();
+          if (!silent) toast('Cloud ledger restored.');
+        } else if (!silent) {
+          toast('Local ledger already current.');
+        }
+      } catch (err) {
+        console.error(err);
+        if (!silent) toast('Cloud sync failed.');
+      }
+    }
+
+    async function syncUpToCloud() {
+      if (cloudSyncBusy) return;
+      cloudSyncBusy = true;
+
+      try {
+        const local = load();
+
+        const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+          method: 'PATCH',
+          headers: cloudHeaders(),
+          body: JSON.stringify({
+            files: {
+              [GIST_FILE]: {
+                content: JSON.stringify(local, null, 2)
+              }
+            }
+          })
+        });
+
+        if (!res.ok) throw new Error(`Cloud save failed: ${res.status}`);
+
+        console.log('Elysian Arca cloud sync complete.');
+        toast('Cloud ledger sealed.');
+      } catch (err) {
+        console.error(err);
+        toast('Cloud save failed.');
+      } finally {
+        cloudSyncBusy = false;
+      }
+    }
+
+    function initCloudSync() {
+      syncDownFromCloud({ silent: true });
+    }
+
+    /* ── DATE HELPERS ───────────────────────────────────────────────────────────── */
+    function ds(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function today() {
+      return ds(new Date());
+    }
+    function diffDays(from, to) {
+      const a = new Date(from + 'T12:00:00'), b = new Date(to + 'T12:00:00');
+      return Math.round((b - a) / 86400000);
+    }
+    function fmtDate(s) {
+      if (!s) return '—';
+      const [y, m, d] = s.split('-').map(Number);
+      return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    function fmtMoney(n) {
+      const v = Number(n) || 0;
+      const abs = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return (v < 0 ? '−$' : '$') + abs;
+    }
+    function daysAgo(n) { return ds(new Date(Date.now() - n * 86400000)); }
+
+    /* ── ARCELLA BALANCE (combines both sources) ────────────────────────────────── */
+    function calcArcellaBalance(excludeCheckInId) {
+      const d = load();
+
+      // From Daily Log check-ins (legacy + ongoing)
+      const fromCheckIns = d.checkIns.reduce((sum, c) => {
+        if (excludeCheckInId && c.id === excludeCheckInId) return sum;
+        if (c.arcaTransaction === 'deposit') return sum + (+c.arcaAmount || 0);
+        if (c.arcaTransaction === 'withdrawal') return sum - (+c.arcaAmount || 0);
+        return sum;
+      }, 0);
+
+      // From Quick Arcella movements (new system)
+      const fromQuick = (d.arcellaMovements || []).reduce((sum, m) => {
+        if (m.type === 'deposit') return sum + (+m.amount || 0);
+        if (m.type === 'withdrawal') return sum - (+m.amount || 0);
+        return sum;
+      }, 0);
+
+      return fromCheckIns + fromQuick;
+    }
+
+    /* ── STATS ──────────────────────────────────────────────────────────────────── */
+    function stats() {
+      const d = load();
+      const t = today(), d30 = daysAgo(30);
+
+      const ci = [...d.checkIns].sort((a, b) => a.date.localeCompare(b.date));
+      const py = [...d.payouts].sort((a, b) => a.date.localeCompare(b.date));
+      const ar = [...d.arcaRituals].sort((a, b) => a.maturityDate.localeCompare(b.maturityDate));
+
+      /* Arca */
+      const lr = ar[ar.length - 1];
+      const arcaTotal = lr ? +lr.newTotal : 0;
+      const arcaGrowth = lr ? +lr.amountAdded : 0;
+      const nextMat = lr ? lr.nextMaturityDate : null;
+      const daysUntil = nextMat ? diffDays(t, nextMat) : null;
+
+      /* Arcella — combined balance */
+      const arcellaBal = calcArcellaBalance();
+
+      /* Net Arcella last 30d (check-ins only; quick movements can span any time) */
+      const net30ci = ci.filter(c => c.date >= d30 && c.arcaTransaction !== 'none')
+        .reduce((s, c) => c.arcaTransaction === 'deposit'
+          ? s + (+c.arcaAmount || 0)
+          : s - (+c.arcaAmount || 0), 0);
+      const net30q = (d.arcellaMovements || [])
+        .filter(m => m.date >= d30)
+        .reduce((s, m) => m.type === 'deposit'
+          ? s + (+m.amount || 0)
+          : s - (+m.amount || 0), 0);
+      const net30 = net30ci + net30q;
+
+      /* Vitis */
+      const lp = py[py.length - 1];
+      const last4 = py.slice(-4);
+      const l4sum = last4.reduce((s, p) => s + +p.amount, 0);
+
+      /* Sobriety */
+      let streak = 0;
+      for (const c of [...ci].reverse()) {
+        if (c.alcoholStatus === 'sober') streak++;
+        else break;
+      }
+      const sober30 = ci.filter(c => c.date >= d30 && c.alcoholStatus === 'sober').length;
+      const workouts30 = ci.filter(c => c.date >= d30 && c.workoutCompleted === 'yes').length;
+
+      /* Status */
+      const tod = ci.find(c => c.date === t);
+      let msg = "Awaiting today's chronicle entry.";
+      if (tod) {
+        if (tod.alcoholStatus === 'binge') {
+          msg = 'Storm detected. Treasury integrity remains the priority.';
+        } else {
+          const pos = (tod.alcoholStatus === 'sober') + (tod.workoutCompleted === 'yes') + (tod.arcaTransaction === 'deposit');
+          msg = pos > 0 ? 'Civilization maintained.' : 'Entry recorded. The treasury watches.';
+        }
+      }
+      if (lr && lr.maturityDate === t && arcaGrowth > 0) msg = 'Treasury Expanded. The wealth endures.';
+
+      return {
+        arcaTotal, arcaGrowth, nextMat, daysUntil,
+        arcellaBal, net30,
+        lastPayout: lp ? +lp.amount : 0, last4, l4sum,
+        streak, sober30, workouts30, msg
+      };
+    }
+
+    /* ── RENDER DASHBOARD ───────────────────────────────────────────────────────── */
+    function renderDash() {
+      const s = stats();
+      document.getElementById('statusLine').textContent = s.msg;
+
+      document.getElementById('statGrid').innerHTML = `
+    <div class="scard g">
+      <div class="scard-lbl">Elysian Arca</div>
+      <div class="scard-val">${fmtMoney(s.arcaTotal)}</div>
+      <div class="scard-sub">${s.arcaGrowth > 0 ? '↑ ' + fmtMoney(s.arcaGrowth) + ' last ritual' : 'Awaiting first ritual'}</div>
+    </div>
+    <div class="scard g">
+      <div class="scard-lbl">Next Maturity</div>
+      <div class="scard-val" style="font-size:1rem;line-height:1.25">${s.nextMat ? fmtDate(s.nextMat) : '—'}</div>
+      <div class="scard-sub">${s.daysUntil !== null ? s.daysUntil + ' days remaining' : 'No ritual recorded'}</div>
+    </div>
+    <div class="scard s">
+      <div class="scard-lbl">La Arcella</div>
+      <div class="scard-val">${fmtMoney(s.arcellaBal)}</div>
+      <div class="scard-sub">Active runway</div>
+    </div>
+    <div class="scard t">
+      <div class="scard-lbl">Last Aether Vitis</div>
+      <div class="scard-val">${fmtMoney(s.lastPayout)}</div>
+      <div class="scard-sub">Last Cambly payout</div>
+    </div>
+    <div class="scard s">
+      <div class="scard-lbl">Sober Streak</div>
+      <div class="scard-val">${s.streak} <span style="font-size:.85rem;font-family:var(--ff-sans)">days</span></div>
+      <div class="scard-sub">${s.sober30} sober / last 30 days</div>
+    </div>
+    <div class="scard s">
+      <div class="scard-lbl">Training</div>
+      <div class="scard-val">${s.workouts30} <span style="font-size:.85rem;font-family:var(--ff-sans)">sessions</span></div>
+      <div class="scard-sub">Last 30 days</div>
+    </div>
+  `;
+
+      const net30Color = s.net30 >= 0 ? 'var(--silver-lt)' : 'var(--danger)';
+      document.getElementById('sum30').innerHTML = `
+    <div class="sum-item"><div class="sum-n" style="color:${net30Color}">${fmtMoney(s.net30)}</div><div class="sum-l">Arcella Net</div></div>
+    <div class="sum-item"><div class="sum-n" style="color:var(--teal-lt)">${fmtMoney(s.l4sum)}</div><div class="sum-l">Vitis (4 payouts)</div></div>
+    <div class="sum-item"><div class="sum-n" style="color:var(--silver-lt)">${s.sober30}</div><div class="sum-l">Sober Days</div></div>
+    <div class="sum-item"><div class="sum-n" style="color:var(--silver-lt)">${s.workouts30}</div><div class="sum-l">Workouts</div></div>
+  `;
+
+      const rev = [...s.last4].reverse();
+      document.getElementById('last4').innerHTML = rev.length === 0
+        ? '<div class="empty">No payout entries yet. Record your first Aether Vitis payout.</div>'
+        : '<div class="pay-list">' + rev.map(p =>
+          `<div class="pay-item">
+          <div class="pay-left">
+            <div class="pay-date">${fmtDate(p.date)}</div>
+            ${p.note ? `<div class="pay-note">${esc(p.note)}</div>` : ''}
+          </div>
+          <span class="pay-amt">${fmtMoney(p.amount)}</span>
+        </div>`
+        ).join('') + '</div>';
+    }
+
+    /* ── RENDER ARCELLA ─────────────────────────────────────────────────────────── */
+    function renderArcella() {
+      const d = load();
+      const bal = calcArcellaBalance();
+
+      // Update quick balance display
+      document.getElementById('quickBal').textContent = fmtMoney(bal);
+      updateQuickPreview();
+
+      // Build combined transaction list (check-ins with transactions + quick movements)
+      const txFromCheckIns = d.checkIns
+        .filter(c => c.arcaTransaction !== 'none' && c.arcaTransaction)
+        .map(c => ({
+          id: c.id,
+          source: 'checkin',
+          date: c.date,
+          type: c.arcaTransaction,
+          amount: +c.arcaAmount || 0,
+          note: c.note || ''
+        }));
+
+      const txFromQuick = (d.arcellaMovements || []).map(m => ({
+        id: m.id,
+        source: 'quick',
+        date: m.date,
+        type: m.type,
+        amount: +m.amount || 0,
+        note: m.note || ''
+      }));
+
+      const all = [...txFromCheckIns, ...txFromQuick]
+        .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+
+      const el = document.getElementById('arcellaHistory');
+      if (all.length === 0) {
+        el.innerHTML = '<div class="empty">No Arcella movements yet. Record your first deposit or withdrawal above.</div>';
+        return;
+      }
+
+      el.innerHTML = all.map(tx => {
+        const isDep = tx.type === 'deposit';
+        const cls = isDep ? 'dep' : 'with';
+        const sym = isDep ? '↑' : '↓';
+        const srcLabel = tx.source === 'checkin' ? ' · via Daily Log' : '';
+        const noteText = tx.note || (tx.source === 'checkin' ? '(Daily Log entry)' : '');
+        return `<div class="arc-tx-item">
+      <div class="arc-tx-dir ${cls}">${sym}</div>
+      <div class="arc-tx-body">
+        <div class="arc-tx-meta">${fmtDate(tx.date)}${srcLabel}</div>
+        ${noteText ? `<div class="arc-tx-note">${esc(noteText)}</div>` : ''}
+      </div>
+      <span class="arc-tx-amt ${cls}">${isDep ? '+' : '−'}${fmtMoney(tx.amount)}</span>
+      <div class="arc-tx-acts">
+        ${tx.source === 'quick'
+            ? `<button class="ebtn ebtn-e" onclick="openEditQModal('${tx.id}')">Edit</button>
+             <button class="ebtn ebtn-d" onclick="delQuick('${tx.id}')">Del</button>`
+            : `<button class="ebtn ebtn-e" onclick="editE('daily','${tx.id}')">Edit</button>`
+          }
+      </div>
+    </div>`;
+      }).join('');
+    }
+
+    /* ── QUICK ARCELLA ──────────────────────────────────────────────────────────── */
+    function setQuickType(type) {
+      quickType = type;
+      document.getElementById('btnDep').classList.toggle('active', type === 'deposit');
+      document.getElementById('btnWith').classList.toggle('active', type === 'withdrawal');
+      updateQuickPreview();
+    }
+
+    function updateQuickPreview() {
+      const amt = +document.getElementById('qa-amt').value || 0;
+      const bal = calcArcellaBalance();
+      const projected = quickType === 'deposit' ? bal + amt : bal - amt;
+      document.getElementById('qa-preview').value = fmtMoney(projected);
+    }
+
+    function saveQuickArcella() {
+      const amt = +document.getElementById('qa-amt').value || 0;
+      if (amt <= 0) { toast('Enter an amount.'); return; }
+
+      const d = load();
+      const entry = {
+        id: uid(),
+        date: today(),
+        type: quickType,
+        amount: amt,
+        note: document.getElementById('qa-note').value.trim(),
+        createdAt: new Date().toISOString()
+      };
+
+      d.arcellaMovements.push(entry);
+      save(d);
+
+      // Reset
+      document.getElementById('qa-amt').value = '';
+      document.getElementById('qa-note').value = '';
+      document.getElementById('qa-preview').value = '';
+
+      renderAll();
+      toast(quickType === 'deposit' ? 'Deposit recorded.' : 'Withdrawal recorded.');
+    }
+
+    /* ── QUICK EDIT MODAL ───────────────────────────────────────────────────────── */
+    function openEditQModal(id) {
+      const d = load();
+      const m = d.arcellaMovements.find(x => x.id === id);
+      if (!m) return;
+      editingQId = id;
+      document.getElementById('eq-type').value = m.type;
+      document.getElementById('eq-amt').value = m.amount;
+      document.getElementById('eq-date').value = m.date;
+      document.getElementById('eq-note').value = m.note || '';
+      document.getElementById('editQModal').classList.add('on');
+    }
+
+    function closeEditQModal() {
+      editingQId = null;
+      document.getElementById('editQModal').classList.remove('on');
+    }
+
+    function saveEditQModal() {
+      if (!editingQId) return;
+      const amt = +document.getElementById('eq-amt').value || 0;
+      if (amt <= 0) { toast('Enter an amount.'); return; }
+      const d = load();
+      const i = d.arcellaMovements.findIndex(x => x.id === editingQId);
+      if (i >= 0) {
+        d.arcellaMovements[i] = {
+          ...d.arcellaMovements[i],
+          type: document.getElementById('eq-type').value,
+          amount: amt,
+          date: document.getElementById('eq-date').value,
+          note: document.getElementById('eq-note').value.trim()
+        };
+        save(d);
+      }
+      closeEditQModal();
+      renderAll();
+      toast('Movement updated.');
+    }
+
+    function delQuick(id) {
+      if (!confirm('Remove this Arcella movement?\nThis cannot be undone.')) return;
+      const d = load();
+      d.arcellaMovements = d.arcellaMovements.filter(m => m.id !== id);
+      save(d);
+      renderAll();
+      toast('Movement removed.');
+    }
+
+    // Close modal on backdrop tap
+    document.getElementById('editQModal').addEventListener('click', function (e) {
+      if (e.target === this) closeEditQModal();
+    });
+
+    /* ── RENDER DAILY ───────────────────────────────────────────────────────────── */
+    function renderDaily() {
+      const d = load();
+      const items = [...d.checkIns].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 50);
+      document.getElementById('listDaily').innerHTML = items.length === 0
+        ? '<div class="empty">No check-in entries yet.</div>'
+        : items.map(e => {
+          const alcIcon = e.alcoholStatus === 'sober' ? '✦ Sober' : e.alcoholStatus === 'drank' ? '◈ Drank' : '◌ Binge';
+          const wkIcon = e.workoutCompleted === 'yes' ? '✦ Trained' : '◌ Rest day';
+          const txPart = e.arcaTransaction !== 'none'
+            ? ` &nbsp;·&nbsp; ${e.arcaTransaction === 'deposit' ? '↑' : '↓'} Arcella ${fmtMoney(e.arcaAmount)}`
+            : '';
+          const notePart = e.note ? `<br><span style="opacity:.55;font-size:.78rem">${esc(e.note)}</span>` : '';
+          return `<div class="eitem">
+          <div class="emain">
+            <div class="etype s">Daily Check-In</div>
+            <div class="edate">${fmtDate(e.date)}</div>
+            <div class="ebody">${alcIcon} &nbsp;·&nbsp; ${wkIcon}${txPart}${notePart}</div>
+          </div>
+          <div class="eacts">
+            <button class="ebtn ebtn-e" onclick="editE('daily','${e.id}')">Edit</button>
+            <button class="ebtn ebtn-d" onclick="delE('checkIns','${e.id}')">Del</button>
+          </div>
+        </div>`;
+        }).join('');
+    }
+
+    /* ── RENDER AETHER ──────────────────────────────────────────────────────────── */
+    function renderAether() {
+      const d = load();
+      const items = [...d.payouts].sort((a, b) => b.date.localeCompare(a.date));
+      document.getElementById('listAether').innerHTML = items.length === 0
+        ? '<div class="empty">No payout entries yet.</div>'
+        : items.map(e => {
+          const notePart = e.note ? `<br><span style="opacity:.55;font-size:.78rem">${esc(e.note)}</span>` : '';
+          return `<div class="eitem">
+          <div class="emain">
+            <div class="etype t">Aether Vitis</div>
+            <div class="edate">${fmtDate(e.date)}</div>
+            <div class="ebody"><span style="color:var(--teal-lt);font-family:var(--ff-mono);font-size:1.05rem">${fmtMoney(e.amount)}</span>${notePart}</div>
+          </div>
+          <div class="eacts">
+            <button class="ebtn ebtn-e" onclick="editE('aether','${e.id}')">Edit</button>
+            <button class="ebtn ebtn-d" onclick="delE('payouts','${e.id}')">Del</button>
+          </div>
+        </div>`;
+        }).join('');
+    }
+
+    /* ── RENDER RITUAL ──────────────────────────────────────────────────────────── */
+    function renderRitual() {
+      const d = load();
+      const items = [...d.arcaRituals].sort((a, b) => b.maturityDate.localeCompare(a.maturityDate));
+      document.getElementById('listRitual').innerHTML = items.length === 0
+        ? '<div class="empty">No rituals recorded yet.</div>'
+        : items.map(e => {
+          const nextPart = e.nextMaturityDate
+            ? `<br><span style="opacity:.45;font-size:.7rem">Next: ${fmtDate(e.nextMaturityDate)}</span>`
+            : '';
+          const notePart = e.note ? `<br><span style="opacity:.55;font-size:.78rem">${esc(e.note)}</span>` : '';
+          return `<div class="eitem">
+          <div class="emain">
+            <div class="etype g">Arca Ritual</div>
+            <div class="edate">${fmtDate(e.maturityDate)}</div>
+            <div class="ebody">
+              <span style="color:var(--gold-lt);font-family:var(--ff-mono);font-size:1.05rem">${fmtMoney(e.newTotal)}</span>
+              <span style="color:var(--text-3)"> (+${fmtMoney(e.amountAdded)})</span>
+              ${nextPart}${notePart}
+            </div>
+          </div>
+          <div class="eacts">
+            <button class="ebtn ebtn-e" onclick="editE('ritual','${e.id}')">Edit</button>
+            <button class="ebtn ebtn-d" onclick="delE('arcaRituals','${e.id}')">Del</button>
+          </div>
+        </div>`;
+        }).join('');
+    }
+
+    /* ── RENDER TIMELINE ────────────────────────────────────────────────────────── */
+    function renderTimeline() {
+      const d = load();
+      const rituals = [...d.arcaRituals].sort((a, b) => a.maturityDate.localeCompare(b.maturityDate));
+      const el = document.getElementById('timeline');
+      if (rituals.length === 0) {
+        el.innerHTML = '<div class="empty" style="padding:1rem">No Arca rituals yet. The treasury timeline will appear here.</div>';
+        return;
+      }
+      const max = Math.max(...rituals.map(r => +r.newTotal));
+      el.innerHTML = '<div class="tl">' + rituals.map(r => {
+        const pct = max > 0 ? (+r.newTotal / max * 100).toFixed(1) : 0;
+        return `<div class="tl-row">
+      <span class="tl-date">${fmtDate(r.maturityDate).replace(',', '')}</span>
+      <div class="tl-wrap"><div class="tl-bar" style="width:${pct}%"></div></div>
+      <span class="tl-val">${fmtMoney(r.newTotal)}</span>
+    </div>`;
+      }).join('') + '</div>';
+    }
+
+    /* ── RENDER CHRONICLE ───────────────────────────────────────────────────────── */
+    function renderChronicle() {
+      const d = load();
+      const all = [
+        ...d.checkIns.map(e => ({ ...e, _t: 'daily', _d: e.date })),
+        ...d.payouts.map(e => ({ ...e, _t: 'aether', _d: e.date })),
+        ...d.arcaRituals.map(e => ({ ...e, _t: 'ritual', _d: e.maturityDate })),
+        ...(d.arcellaMovements || []).map(e => ({ ...e, _t: 'quickarc', _d: e.date }))
+      ].sort((a, b) => {
+        const dateCompare = b._d.localeCompare(a._d);
+        if (dateCompare !== 0) return dateCompare;
+
+        const aTime = a.createdAt || a.id || '';
+        const bTime = b.createdAt || b.id || '';
+
+        return bTime.localeCompare(aTime);
+      });
+
+      document.getElementById('listChronicle').innerHTML = all.length === 0
+        ? '<div class="empty">The chronicle is empty. Begin your first entry.</div>'
+        : all.map(e => {
+          if (e._t === 'daily') {
+            const alcIcon = e.alcoholStatus === 'sober' ? '✦ Sober' : e.alcoholStatus === 'drank' ? '◈ Drank' : '◌ Binge';
+            const wkIcon = e.workoutCompleted === 'yes' ? '✦ Trained' : '◌ Rest day';
+            const txPart = e.arcaTransaction !== 'none' ? ` &nbsp;·&nbsp; ${e.arcaTransaction === 'deposit' ? '↑' : '↓'} ${fmtMoney(e.arcaAmount)}` : '';
+            const np = e.note ? `<br><span style="opacity:.5;font-size:.78rem">${esc(e.note)}</span>` : '';
+            return `<div class="eitem">
+            <div class="emain">
+              <div class="etype s">Daily</div>
+              <div class="edate">${fmtDate(e.date)}</div>
+              <div class="ebody">${alcIcon} &nbsp;·&nbsp; ${wkIcon}${txPart}${np}</div>
+            </div>
+            <div class="eacts">
+              <button class="ebtn ebtn-e" onclick="editE('daily','${e.id}')">Edit</button>
+              <button class="ebtn ebtn-d" onclick="delE('checkIns','${e.id}')">Del</button>
+            </div>
+          </div>`;
+          }
+          if (e._t === 'aether') {
+            const np = e.note ? `<br><span style="opacity:.5;font-size:.78rem">${esc(e.note)}</span>` : '';
+            return `<div class="eitem">
+            <div class="emain">
+              <div class="etype t">Aether Vitis</div>
+              <div class="edate">${fmtDate(e.date)}</div>
+              <div class="ebody"><span style="color:var(--teal-lt);font-family:var(--ff-mono)">${fmtMoney(e.amount)}</span>${np}</div>
+            </div>
+            <div class="eacts">
+              <button class="ebtn ebtn-e" onclick="editE('aether','${e.id}')">Edit</button>
+              <button class="ebtn ebtn-d" onclick="delE('payouts','${e.id}')">Del</button>
+            </div>
+          </div>`;
+          }
+          if (e._t === 'ritual') {
+            const np = e.note ? `<br><span style="opacity:.5;font-size:.78rem">${esc(e.note)}</span>` : '';
+            return `<div class="eitem">
+            <div class="emain">
+              <div class="etype g">Arca Ritual</div>
+              <div class="edate">${fmtDate(e.maturityDate)}</div>
+              <div class="ebody"><span style="color:var(--gold-lt);font-family:var(--ff-mono)">${fmtMoney(e.newTotal)}</span> <span style="color:var(--text-3)">(+${fmtMoney(e.amountAdded)})</span>${np}</div>
+            </div>
+            <div class="eacts">
+              <button class="ebtn ebtn-e" onclick="editE('ritual','${e.id}')">Edit</button>
+              <button class="ebtn ebtn-d" onclick="delE('arcaRituals','${e.id}')">Del</button>
+            </div>
+          </div>`;
+          }
+          if (e._t === 'quickarc') {
+            const isDep = e.type === 'deposit';
+            const np = e.note ? `<br><span style="opacity:.5;font-size:.78rem">${esc(e.note)}</span>` : '';
+            return `<div class="eitem">
+            <div class="emain">
+              <div class="etype s">La Arcella</div>
+              <div class="edate">${fmtDate(e.date)}</div>
+              <div class="ebody">
+                <span style="color:${isDep ? '#82c9a0' : '#d49070'};font-family:var(--ff-mono)">${isDep ? '+' : '-'}${fmtMoney(e.amount)}</span>
+                ${np}
+              </div>
+            </div>
+            <div class="eacts">
+              <button class="ebtn ebtn-e" onclick="openEditQModal('${e.id}')">Edit</button>
+              <button class="ebtn ebtn-d" onclick="delQuick('${e.id}')">Del</button>
+            </div>
+          </div>`;
+          }
+          return '';
+        }).join('');
+    }
+
+    /* ── RENDER ALL ─────────────────────────────────────────────────────────────── */
+    function renderAll() {
+      renderDash();
+      renderArcella();
+      renderDaily();
+      renderAether();
+      renderRitual();
+      renderTimeline();
+      renderChronicle();
+    }
+
+    /* ── LANDING ────────────────────────────────────────────────────────────────── */
+    function enterArca() {
+      document.getElementById('landing').classList.add('gone');
+      const app = document.getElementById('app');
+      app.classList.remove('off');
+      requestAnimationFrame(() => requestAnimationFrame(() => app.classList.add('vis')));
+    }
+
+    /* ── NAVIGATION ─────────────────────────────────────────────────────────────── */
+    document.querySelectorAll('.bnav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sec = btn.dataset.sec;
+        goTab(sec);
+      });
+    });
+
+    function goTab(sec) {
+      document.querySelectorAll('.bnav-btn').forEach(b => {
+        b.classList.toggle('on', b.dataset.sec === sec);
+      });
+      document.querySelectorAll('.sec').forEach(s => {
+        s.classList.toggle('on', s.id === 'sec-' + sec);
+      });
+      if (sec === 'chronicle' || sec === 'more') renderChronicle();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* Sub-tabs in "More" */
+    function goSub(sub) {
+      document.querySelectorAll('.bnav-sub').forEach(b => {
+        b.classList.toggle('on', b.dataset.sub === sub);
+      });
+      document.getElementById('sub-chronicle').style.display = sub === 'chronicle' ? '' : 'none';
+      document.getElementById('sub-archive').style.display = sub === 'archive' ? '' : 'none';
+      if (sub === 'chronicle') renderChronicle();
+    }
+
+    /* ── DAILY FORM ─────────────────────────────────────────────────────────────── */
+    function currentArcellaBalance() { return calcArcellaBalance(); }
+
+    function updateArcellaPreview() {
+      const tx = document.getElementById('di-tx').value;
+      const amt = +document.getElementById('di-amt').value || 0;
+      const bal = calcArcellaBalance(editing.daily || null);
+      let projected = bal;
+      if (tx === 'deposit') projected += amt;
+      if (tx === 'withdrawal') projected -= amt;
+      document.getElementById('di-bal').value = fmtMoney(projected);
+    }
+
+    function toggleTx() {
+      const show = document.getElementById('di-tx').value !== 'none';
+      document.getElementById('txFields').style.display = show ? '' : 'none';
+      if (show) updateArcellaPreview();
+    }
+
+    document.getElementById('di-amt').addEventListener('input', updateArcellaPreview);
+    document.getElementById('di-tx').addEventListener('change', updateArcellaPreview);
+
+    document.getElementById('fDaily').addEventListener('submit', e => {
+      e.preventDefault();
+      const d = load();
+      const id = editing.daily || uid();
+      const entry = {
+        id,
+        date: document.getElementById('di-date').value,
+        alcoholStatus: document.getElementById('di-alc').value,
+        workoutCompleted: document.getElementById('di-wk').value,
+        arcaTransaction: document.getElementById('di-tx').value,
+        arcaAmount: document.getElementById('di-amt').value || 0,
+        note: document.getElementById('di-note').value.trim()
+      };
+      if (editing.daily) {
+        const i = d.checkIns.findIndex(c => c.id === id);
+        if (i >= 0) d.checkIns[i] = entry; else d.checkIns.push(entry);
+      } else {
+        d.checkIns.push(entry);
+      }
+      save(d);
+      toast(editing.daily ? 'Entry updated.' : 'Check-in recorded.');
+      cancelEdit('daily');
+      renderAll();
+    });
+
+    /* ── AETHER FORM ────────────────────────────────────────────────────────────── */
+    document.getElementById('fAether').addEventListener('submit', e => {
+      e.preventDefault();
+      const d = load();
+      const id = editing.aether || uid();
+      const entry = {
+        id,
+        date: document.getElementById('av-date').value,
+        amount: document.getElementById('av-amt').value,
+        note: document.getElementById('av-note').value.trim()
+      };
+      if (editing.aether) {
+        const i = d.payouts.findIndex(p => p.id === id);
+        if (i >= 0) d.payouts[i] = entry; else d.payouts.push(entry);
+      } else {
+        d.payouts.push(entry);
+      }
+      save(d);
+      toast(editing.aether ? 'Payout updated.' : 'Payout recorded. Aether Vitis flows.');
+      cancelEdit('aether');
+      renderAll();
+    });
+
+    /* ── RITUAL FORM ────────────────────────────────────────────────────────────── */
+    function calcRitualTotal() {
+      const prev = +document.getElementById('ar-prev').value || 0;
+      const add = +document.getElementById('ar-add').value || 0;
+      if (prev || add) document.getElementById('ar-new').value = (prev + add).toFixed(2);
+    }
+    document.getElementById('ar-prev').addEventListener('input', calcRitualTotal);
+    document.getElementById('ar-add').addEventListener('input', calcRitualTotal);
+
+    document.getElementById('fRitual').addEventListener('submit', e => {
+      e.preventDefault();
+      const d = load();
+      const id = editing.ritual || uid();
+      const entry = {
+        id,
+        maturityDate: document.getElementById('ar-date').value,
+        previousTotal: document.getElementById('ar-prev').value,
+        amountAdded: document.getElementById('ar-add').value,
+        newTotal: document.getElementById('ar-new').value,
+        nextMaturityDate: document.getElementById('ar-next').value || null,
+        note: document.getElementById('ar-note').value.trim()
+      };
+      if (editing.ritual) {
+        const i = d.arcaRituals.findIndex(r => r.id === id);
+        if (i >= 0) d.arcaRituals[i] = entry; else d.arcaRituals.push(entry);
+      } else {
+        d.arcaRituals.push(entry);
+      }
+      save(d);
+      toast(editing.ritual ? 'Ritual updated.' : 'Ritual sealed. Treasury Expanded.');
+      cancelEdit('ritual');
+      renderAll();
+    });
+
+    /* ── EDIT ENTRIES ───────────────────────────────────────────────────────────── */
+    function editE(type, id) {
+      const d = load();
+      if (type === 'daily') {
+        const e = d.checkIns.find(c => c.id === id); if (!e) return;
+        editing.daily = id;
+        document.getElementById('di-date').value = e.date;
+        document.getElementById('di-alc').value = e.alcoholStatus;
+        document.getElementById('di-wk').value = e.workoutCompleted;
+        document.getElementById('di-tx').value = e.arcaTransaction;
+        document.getElementById('di-amt').value = e.arcaAmount || '';
+        document.getElementById('di-note').value = e.note || '';
+        toggleTx();
+        document.getElementById('ebDaily').classList.add('on');
+        goTab('daily');
+      } else if (type === 'aether') {
+        const e = d.payouts.find(p => p.id === id); if (!e) return;
+        editing.aether = id;
+        document.getElementById('av-date').value = e.date;
+        document.getElementById('av-amt').value = e.amount;
+        document.getElementById('av-note').value = e.note || '';
+        document.getElementById('ebAether').classList.add('on');
+        goTab('aether');
+      } else if (type === 'ritual') {
+        const e = d.arcaRituals.find(r => r.id === id); if (!e) return;
+        editing.ritual = id;
+        document.getElementById('ar-date').value = e.maturityDate;
+        document.getElementById('ar-prev').value = e.previousTotal;
+        document.getElementById('ar-add').value = e.amountAdded;
+        document.getElementById('ar-new').value = e.newTotal;
+        document.getElementById('ar-next').value = e.nextMaturityDate || '';
+        document.getElementById('ar-note').value = e.note || '';
+        document.getElementById('ebRitual').classList.add('on');
+        goTab('ritual');
+      }
+    }
+
+    function cancelEdit(type) {
+      editing[type] = null;
+      if (type === 'daily') {
+        document.getElementById('fDaily').reset();
+        document.getElementById('ebDaily').classList.remove('on');
+        document.getElementById('txFields').style.display = 'none';
+        document.getElementById('di-date').value = today();
+      } else if (type === 'aether') {
+        document.getElementById('fAether').reset();
+        document.getElementById('ebAether').classList.remove('on');
+        document.getElementById('av-date').value = today();
+      } else if (type === 'ritual') {
+        document.getElementById('fRitual').reset();
+        document.getElementById('ebRitual').classList.remove('on');
+        const rituals = [...load().arcaRituals].sort((a, b) => a.maturityDate.localeCompare(b.maturityDate));
+        const lr = rituals[rituals.length - 1];
+        document.getElementById('ar-date').value = lr?.nextMaturityDate || today();
+        document.getElementById('ar-prev').value = lr ? (+lr.newTotal || 0).toFixed(2) : '';
+        document.getElementById('ar-new').value = lr ? (+lr.newTotal || 0).toFixed(2) : '';
+        document.getElementById('ar-next').value = ds(new Date(new Date((lr?.nextMaturityDate || today()) + 'T12:00:00').getTime() + 30 * 86400000));
+      }
+    }
+
+    /* ── DELETE ─────────────────────────────────────────────────────────────────── */
+    function delE(coll, id) {
+      if (!confirm('Remove this entry from the treasury ledger?\nThis cannot be undone.')) return;
+      const d = load();
+      d[coll] = d[coll].filter(e => e.id !== id);
+      save(d);
+      renderAll();
+      toast('Entry removed from ledger.');
+    }
+
+    /* ── EXPORT / IMPORT ────────────────────────────────────────────────────────── */
+    function exportData() {
+      const blob = new Blob([JSON.stringify(load(), null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'elysian-arca-' + today() + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('Archive exported.');
+    }
+
+    function importData(ev) {
+      const file = ev.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev2 => {
+        try {
+          const data = JSON.parse(ev2.target.result);
+          if (!data.checkIns || !data.payouts || !data.arcaRituals) throw 0;
+          // Ensure new field exists on import
+          if (!data.arcellaMovements) data.arcellaMovements = [];
+          if (!confirm('Replace all current data with this archive? Export first if needed.')) return;
+          save(data);
+          renderAll();
+          toast('Archive restored. Treasury synchronized.');
+        } catch { toast('Import failed — invalid archive file.'); }
+      };
+      reader.readAsText(file);
+      ev.target.value = '';
+    }
+
+    function clearAll() {
+      if (!confirm('Permanently erase ALL Elysian Arca data?\nThis cannot be undone — export first.')) return;
+      localStorage.removeItem(KEY);
+      renderAll();
+      toast('Data cleared. The treasury resets.');
+    }
+
+    /* ── TOAST ──────────────────────────────────────────────────────────────────── */
+    let _toastTimer;
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('on');
+      clearTimeout(_toastTimer);
+      _toastTimer = setTimeout(() => el.classList.remove('on'), 2800);
+    }
+
+    /* ── ESCAPE ─────────────────────────────────────────────────────────────────── */
+    function esc(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    /* ── INIT ───────────────────────────────────────────────────────────────────── */
+    function init() {
+      applyMode(localStorage.getItem(THEME_KEY) || 'night');
+
+      document.getElementById('landMsg').textContent = MSGS[Math.floor(Math.random() * MSGS.length)];
+
+      document.getElementById('hdDate').textContent =
+        new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase();
+
+      document.getElementById('di-date').value = today();
+      document.getElementById('av-date').value = today();
+      document.getElementById('eq-date').value = today();
+
+      const rituals = [...load().arcaRituals].sort((a, b) => a.maturityDate.localeCompare(b.maturityDate));
+      const lr = rituals[rituals.length - 1];
+      document.getElementById('ar-date').value = lr?.nextMaturityDate || today();
+      document.getElementById('ar-prev').value = lr ? (+lr.newTotal || 0).toFixed(2) : '';
+      document.getElementById('ar-new').value = lr ? (+lr.newTotal || 0).toFixed(2) : '';
+      document.getElementById('ar-next').value = ds(new Date(new Date((lr?.nextMaturityDate || today()) + 'T12:00:00').getTime() + 30 * 86400000));
+
+      // Set default quick type
+      setQuickType('deposit');
+
+      renderAll();
+      initCloudSync();
+    }
+
+    init();
+  </script>
+</body>
+
+</html>

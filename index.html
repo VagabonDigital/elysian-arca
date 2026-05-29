@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+<rect width='100' height='100' rx='18' fill='%23030b1a'/>
+<polygon points='50,18 82,50 50,82 18,50'
+fill='none'
+stroke='%23d4af37'
+stroke-width='6'/>
+</svg>">
+  <title>ELYSIAN ARCA</title>
+  <style>
+    /* ─── RESET & ROOT ─────────────────────────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #070a10;
+      --bg-2: #0b0f1a;
+      --bg-card: #0e1322;
+      --bg-card-hi: #121828;
+      --bg-input: #090d18;
+      --border: rgba(255, 255, 255, 0.07);
+      --border-hi: rgba(255, 255, 255, 0.13);
+
+      --gold: #c8a44a;
+      --gold-lt: #e0c46e;
+      --gold-dim: rgba(200, 164, 74, 0.14);
+      --gold-glow: rgba(200, 164, 74, 0.18);
+
+      --teal: #44c2be;
+      --teal-lt: #72d9d5;
+      --teal-dim: rgba(68, 194, 190, 0.12);
+
+      --silver: #7aa8c4;
+      --silver-lt: #a5c8dc;
+      --silver-dim: rgba(122, 168, 196, 0.12);
+
+      --text: #ddd8ce;
+      --text-2: #7e8fa3;
+      --text-3: #384051;
+      --text-4: #222a37;
+
+      --danger: #b06040;
+      --success: #4e8a68;
+
+      --r: 14px;
+      --r-sm: 9px;
+      --r-xs: 5px;
+
+      --ff-serif: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+      --ff-sans: "Trebuchet MS", "Gill Sans MT", Calibri, Verdana, sans-serif;
+      --ff-mono: "Courier New", Courier, monospace;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ff-sans);
+      font-size: 15px;
+      line-height: 1.65;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── AMBIENT BACKGROUND TEXTURE ──────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 90% 55% at 50% 0%, rgba(200, 164, 74, 0.035) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 10% 100%, rgba(68, 194, 190, 0.025) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 35% at 90% 60%, rgba(122, 168, 196, 0.025) 0%, transparent 55%);
+      animation: ambientPulse 14s ease-in-out infinite alternate;
+    }
+
+    @keyframes ambientPulse {
+      from {
+        opacity: .5;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* ─── LANDING ──────────────────────────────────────────────────────────────── */
+    #landing {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      transition: opacity .9s ease, visibility .9s ease;
+    }
+
+    #landing.gone {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .land-glow {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 40%, rgba(200, 164, 74, 0.07) 0%, transparent 65%);
+      animation: ambientPulse 10s ease-in-out infinite alternate;
+    }
+
+    .land-inner {
+      position: relative;
+      text-align: center;
+      padding: 2rem 1.5rem;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .land-mark {
+      font-family: var(--ff-serif);
+      font-size: clamp(2.6rem, 9vw, 5.2rem);
+      color: var(--gold);
+      font-weight: normal;
+      line-height: 1;
+      animation: fadeUp .9s ease both;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .mark-word {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: .38em;
+    }
+
+    .mark-space {
+      width: .55em;
+      flex: 0 0 auto;
+    }
+
+    .land-sub {
+      margin-top: .6rem;
+      font-size: .68rem;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      animation: fadeUp .9s .25s ease both;
+    }
+
+    .land-rule {
+      width: 56px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(200, 164, 74, .45), transparent);
+      margin: 1.6rem auto;
+      animation: fadeUp .9s .45s ease both;
+    }
+
+    .land-msg {
+      font-family: var(--ff-serif);
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--text-2);
+      margin-bottom: 2.6rem;
+      animation: fadeUp .9s .65s ease both;
+    }
+
+    .land-btn {
+      display: inline-block;
+      padding: .72rem 2.4rem;
+      border: 1px solid var(--gold);
+      background: var(--gold-dim);
+      color: var(--gold-lt);
+      font-family: var(--ff-sans);
+      font-size: .72rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: var(--r-sm);
+      transition: background .25s, box-shadow .25s;
+      animation: fadeUp .9s .9s ease both;
+    }
+
+    .land-btn:hover {
+      background: rgba(200, 164, 74, .25);
+      box-shadow: 0 0 28px var(--gold-glow);
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ─── APP SHELL ────────────────────────────────────────────────────────────── */
+    #app {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      opacity: 0;
+      transition: opacity .7s ease;
+    }
+
+    #app.vis {
+      opacity: 1;
+    }
+
+    #app.off {
+      display: none;
+    }
+
+    /* ─── HEADER ───────────────────────────────────────────────────────────────── */
+    .hd {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .7rem 1.5rem;
+      background: rgba(7, 10, 16, .88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hd-name {
+      font-family: var(--ff-serif);
+      font-size: .95rem;
+      letter-spacing: .32em;
+      color: var(--gold);
+      font-weight: normal;
+    }
+
+    .hd-date {
+      font-family: var(--ff-mono);
+      font-size: .68rem;
+      color: var(--text-3);
+      letter-spacing: .08em;
+    }
+
+    /* ─── NAV ──────────────────────────────────────────────────────────────────── */
+    .nav {
+      display: flex;
+      gap: 0;
+      padding: .9rem 1.5rem 0;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .ntab {
+      padding: .55rem 1.15rem;
+      font-size: .66rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      cursor: pointer;
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: none;
+      font-family: var(--ff-sans);
+      transition: color .2s, border-color .2s;
+      white-space: nowrap;
+    }
+
+    .ntab:hover {
+      color: var(--text-2);
+    }
+
+    .ntab.on {
+      color: var(--text);
+      border-bottom-color: var(--gold);
+    }
+
+    /* ─── SECTIONS ─────────────────────────────────────────────────────────────── */
+    .sec {
+      display: none;
+      padding: 1.75rem 1.5rem;
+      max-width: 1080px;
+      margin: 0 auto;
+      animation: secIn .35s ease both;
+    }
+
+    .sec.on {
+      display: block;
+    }
+
+    @keyframes secIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* ─── HERO DASHBOARD ───────────────────────────────────────────────────────── */
+    .status-line {
+      text-align: center;
+      padding: 1.1rem 0 1.4rem;
+      font-family: var(--ff-serif);
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--text-2);
+      letter-spacing: .04em;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 680px) {
+      .stat-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .scard {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.2rem 1.1rem;
+      transition: transform .25s, border-color .25s, box-shadow .25s;
+      cursor: default;
+    }
+
+    .scard:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-hi);
+    }
+
+    .scard.g {
+      border-color: rgba(200, 164, 74, .22);
+    }
+
+    .scard.g:hover {
+      box-shadow: 0 6px 28px rgba(200, 164, 74, .07);
+    }
+
+    .scard.t {
+      border-color: rgba(68, 194, 190, .18);
+    }
+
+    .scard.t:hover {
+      box-shadow: 0 6px 28px rgba(68, 194, 190, .06);
+    }
+
+    .scard.s {
+      border-color: rgba(122, 168, 196, .18);
+    }
+
+    .scard.s:hover {
+      box-shadow: 0 6px 28px rgba(122, 168, 196, .06);
+    }
+
+    .scard-lbl {
+      font-size: .62rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: .45rem;
+    }
+
+    .scard-val {
+      font-family: var(--ff-mono);
+      font-size: 1.7rem;
+      line-height: 1.1;
+      margin-bottom: .3rem;
+    }
+
+    .scard.g .scard-val {
+      color: var(--gold-lt);
+    }
+
+    .scard.t .scard-val {
+      color: var(--teal-lt);
+    }
+
+    .scard.s .scard-val {
+      color: var(--silver-lt);
+    }
+
+    .scard-sub {
+      font-size: .68rem;
+      color: var(--text-3);
+      letter-spacing: .04em;
+    }
+
+    /* ─── SECTION HEADERS ──────────────────────────────────────────────────────── */
+    .sh {
+      font-family: var(--ff-serif);
+      font-size: 1.1rem;
+      font-weight: normal;
+      letter-spacing: .1em;
+      color: var(--text-2);
+      margin: 1.8rem 0 1rem;
+      padding-bottom: .6rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ─── SUMMARY STRIP ────────────────────────────────────────────────────────── */
+    .sum-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: .9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .sum-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: .9rem 1rem;
+    }
+
+    .sum-n {
+      font-family: var(--ff-mono);
+      font-size: 1.25rem;
+      margin-bottom: .2rem;
+    }
+
+    .sum-l {
+      font-size: .63rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+
+    /* ─── PAYOUT CARDS ─────────────────────────────────────────────────────────── */
+    .pay-list {
+      display: flex;
+      flex-direction: column;
+      gap: .7rem;
+    }
+
+    .pay-item {
+      background: var(--bg-card);
+      border: 1px solid rgba(68, 194, 190, .14);
+      border-radius: var(--r-sm);
+      padding: .85rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .8rem;
+      flex-wrap: wrap;
+    }
+
+    .pay-date {
+      font-family: var(--ff-mono);
+      font-size: .7rem;
+      color: var(--text-3);
+    }
+
+    .pay-note {
+      font-size: .8rem;
+      color: var(--text-2);
+      flex: 1;
+      min-width: 60px;
+    }
+
+    .pay-amt {
+      font-family: var(--ff-mono);
+      font-size: 1.2rem;
+      color: var(--teal-lt);
+      white-space: nowrap;
+    }
+
+    /* ─── FORMS ────────────────────────────────────────────────────────────────── */
+    .fcard {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.5rem 1.5rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .ftitle {
+      font-family: var(--ff-serif);
+      font-size: 1.1rem;
+      font-weight: normal;
+      letter-spacing: .14em;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+    }
+
+    .ftitle::before {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 1.15em;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .ftitle.g {
+      color: var(--gold-lt);
+    }
+
+    .ftitle.g::before {
+      background: var(--gold);
+    }
+
+    .ftitle.t {
+      color: var(--teal-lt);
+    }
+
+    .ftitle.t::before {
+      background: var(--teal);
+    }
+
+    .ftitle.s {
+      color: var(--silver-lt);
+    }
+
+    .ftitle.s::before {
+      background: var(--silver);
+    }
+
+    .fgrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .95rem;
+    }
+
+    @media (max-width: 540px) {
+      .fgrid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .fgrp {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+
+    .fgrp.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: .63rem;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+
+    input[type=text],
+    input[type=date],
+    input[type=number],
+    select,
+    textarea {
+      background: var(--bg-input);
+      border: 1px solid rgba(255, 255, 255, .09);
+      border-radius: var(--r-xs);
+      color: var(--text);
+      font-family: var(--ff-sans);
+      font-size: .9rem;
+      padding: .58rem .8rem;
+      outline: none;
+      width: 100%;
+      transition: border-color .2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: rgba(255, 255, 255, .22);
+    }
+
+    select option {
+      background: #111828;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 56px;
+      line-height: 1.55;
+    }
+
+    .brow {
+      display: flex;
+      gap: .7rem;
+      margin-top: 1.15rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      padding: .58rem 1.4rem;
+      border-radius: var(--r-xs);
+      font-family: var(--ff-sans);
+      font-size: .68rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background .2s, box-shadow .2s, color .2s;
+      white-space: nowrap;
+    }
+
+    .btn-g {
+      background: var(--gold-dim);
+      border-color: rgba(200, 164, 74, .6);
+      color: var(--gold-lt);
+    }
+
+    .btn-g:hover {
+      background: rgba(200, 164, 74, .24);
+      box-shadow: 0 0 18px rgba(200, 164, 74, .12);
+    }
+
+    .btn-t {
+      background: var(--teal-dim);
+      border-color: rgba(68, 194, 190, .6);
+      color: var(--teal-lt);
+    }
+
+    .btn-t:hover {
+      background: rgba(68, 194, 190, .22);
+    }
+
+    .btn-s {
+      background: var(--silver-dim);
+      border-color: rgba(122, 168, 196, .6);
+      color: var(--silver-lt);
+    }
+
+    .btn-s:hover {
+      background: rgba(122, 168, 196, .22);
+    }
+
+    .btn-gh {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-3);
+    }
+
+    .btn-gh:hover {
+      color: var(--text-2);
+      border-color: var(--border-hi);
+    }
+
+    .btn-dx {
+      background: transparent;
+      border-color: rgba(176, 96, 64, .3);
+      color: rgba(176, 96, 64, .7);
+    }
+
+    .btn-dx:hover {
+      background: rgba(176, 96, 64, .1);
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    /* ─── EDIT BANNER ──────────────────────────────────────────────────────────── */
+    .eb {
+      display: none;
+      background: rgba(200, 164, 74, .07);
+      border: 1px solid rgba(200, 164, 74, .2);
+      border-radius: var(--r-xs);
+      padding: .55rem 1rem;
+      margin-bottom: .9rem;
+      font-size: .75rem;
+      color: var(--gold);
+      letter-spacing: .04em;
+    }
+
+    .eb.on {
+      display: block;
+    }
+
+    /* ─── ENTRIES ──────────────────────────────────────────────────────────────── */
+    .elist {
+      display: flex;
+      flex-direction: column;
+      gap: .7rem;
+    }
+
+    .eitem {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: .95rem 1.15rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: .9rem;
+      transition: border-color .2s;
+    }
+
+    .eitem:hover {
+      border-color: var(--border-hi);
+    }
+
+    .emain {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .etype {
+      font-size: .59rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: .25rem;
+    }
+
+    .etype.g {
+      color: var(--gold);
+    }
+
+    .etype.t {
+      color: var(--teal);
+    }
+
+    .etype.s {
+      color: var(--silver);
+    }
+
+    .edate {
+      font-family: var(--ff-mono);
+      font-size: .72rem;
+      color: var(--text-3);
+      margin-bottom: .35rem;
+    }
+
+    .ebody {
+      font-size: .84rem;
+      color: var(--text-2);
+      line-height: 1.55;
+      word-break: break-word;
+    }
+
+    .eacts {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+      flex-shrink: 0;
+      padding-top: .1rem;
+    }
+
+    .ebtn {
+      padding: .28rem .7rem;
+      font-size: .6rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      border-radius: 4px;
+      cursor: pointer;
+      background: none;
+      font-family: var(--ff-sans);
+      transition: all .18s;
+      white-space: nowrap;
+    }
+
+    .ebtn-e {
+      border: 1px solid rgba(255, 255, 255, .1);
+      color: var(--text-3);
+    }
+
+    .ebtn-e:hover {
+      color: var(--text);
+      border-color: rgba(255, 255, 255, .25);
+    }
+
+    .ebtn-d {
+      border: 1px solid rgba(176, 96, 64, .2);
+      color: rgba(176, 96, 64, .55);
+    }
+
+    .ebtn-d:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+      background: rgba(176, 96, 64, .08);
+    }
+
+    /* ─── TIMELINE ─────────────────────────────────────────────────────────────── */
+    .tl {
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+    }
+
+    .tl-row {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    .tl-date {
+      font-family: var(--ff-mono);
+      font-size: .67rem;
+      color: var(--text-3);
+      width: 84px;
+      flex-shrink: 0;
+    }
+
+    .tl-wrap {
+      flex: 1;
+      height: 18px;
+      background: rgba(200, 164, 74, .06);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .tl-bar {
+      height: 100%;
+      background: linear-gradient(90deg, rgba(200, 164, 74, .4), var(--gold));
+      border-radius: 3px;
+      transition: width .7s ease;
+    }
+
+    .tl-val {
+      font-family: var(--ff-mono);
+      font-size: .75rem;
+      color: var(--gold);
+      width: 90px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ─── EMPTY ────────────────────────────────────────────────────────────────── */
+    .empty {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--text-4);
+      font-family: var(--ff-serif);
+      font-style: italic;
+      font-size: .95rem;
+    }
+
+    /* ─── BACKUP ───────────────────────────────────────────────────────────────── */
+    .bk-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.4rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .bk-title {
+      font-size: .65rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: .6rem;
+    }
+
+    .bk-desc {
+      font-size: .84rem;
+      color: var(--text-2);
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    /* ─── TOAST ────────────────────────────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 1.8rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: var(--bg-card-hi);
+      border: 1px solid rgba(200, 164, 74, .3);
+      color: var(--gold-lt);
+      padding: .65rem 1.5rem;
+      border-radius: var(--r-sm);
+      font-size: .76rem;
+      letter-spacing: .07em;
+      z-index: 300;
+      opacity: 0;
+      transition: opacity .28s, transform .28s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    #toast.on {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ─── SCROLLBAR ────────────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, .1);
+      border-radius: 99px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════ LANDING -->
+  <div id="landing">
+    <div class="land-glow"></div>
+    <div class="land-inner">
+      <h1 class="land-mark" aria-label="Elysian Arca">
+        <span class="mark-word" aria-hidden="true">
+          <span>E</span><span>L</span><span>Y</span><span>S</span><span>I</span><span>A</span><span>N</span>
+        </span>
+
+        <span class="mark-space" aria-hidden="true"></span>
+
+        <span class="mark-word" aria-hidden="true">
+          <span>A</span><span>R</span><span>C</span><span>A</span>
+        </span>
+      </h1>
+      <div class="land-sub">Personal Treasury Terminal</div>
+      <div class="land-rule"></div>
+      <div class="land-msg" id="landMsg"></div>
+      <button class="land-btn" onclick="enterArca()">Enter Arca</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ APP -->
+  <div id="app" class="off">
+
+    <header class="hd">
+      <span class="hd-name">ELYSIAN ARCA</span>
+      <span class="hd-date" id="hdDate"></span>
+    </header>
+
+    <nav class="nav">
+      <button class="ntab on" data-sec="dashboard">Dashboard</button>
+      <button class="ntab" data-sec="daily">Daily Log</button>
+      <button class="ntab" data-sec="aether">Aether Vitis</button>
+      <button class="ntab" data-sec="ritual">Arca Ritual</button>
+      <button class="ntab" data-sec="chronicle">Chronicle</button>
+      <button class="ntab" data-sec="archive">Archive</button>
+    </nav>
+
+    <!-- ── DASHBOARD ── -->
+    <div class="sec on" id="sec-dashboard">
+      <div class="status-line" id="statusLine">Awaiting today's chronicle entry.</div>
+      <div class="stat-grid" id="statGrid"></div>
+      <div class="sh">Last 30 Days</div>
+      <div class="sum-row" id="sum30"></div>
+      <div class="sh">Aether Vitis — Last 4 Payouts</div>
+      <div id="last4"></div>
+    </div>
+
+    <!-- ── DAILY LOG ── -->
+    <div class="sec" id="sec-daily">
+      <div class="eb" id="ebDaily">Editing entry — submit to update the ledger.</div>
+      <div class="fcard">
+        <div class="ftitle s">Daily Check-In</div>
+        <form id="fDaily">
+          <div class="fgrid">
+            <div class="fgrp">
+              <label>Date</label>
+              <input type="date" id="di-date" required>
+            </div>
+            <div class="fgrp">
+              <label>Alcohol Status</label>
+              <select id="di-alc">
+                <option value="sober">Sober</option>
+                <option value="drank">Drank</option>
+                <option value="binge">Binge</option>
+              </select>
+            </div>
+            <div class="fgrp">
+              <label>Workout Completed</label>
+              <select id="di-wk">
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+            <div class="fgrp">
+              <label>La Arcella Transaction</label>
+              <select id="di-tx" onchange="toggleTx()">
+                <option value="none">None</option>
+                <option value="deposit">Deposit</option>
+                <option value="withdrawal">Withdrawal</option>
+              </select>
+            </div>
+            <div class="fgrp" id="txAmt" style="display:none">
+              <label>Transaction Amount</label>
+              <input type="number" id="di-amt" min="0" step="0.01" placeholder="0.00">
+            </div>
+            <div class="fgrp" id="txBal" style="display:none">
+              <label>La Arcella Balance After</label>
+              <input type="text" id="di-bal" readonly placeholder="$0.00">
+            </div>
+            <div class="fgrp full">
+              <label>Note (optional)</label>
+              <textarea id="di-note" placeholder="Any thoughts for the record…"></textarea>
+            </div>
+          </div>
+          <div class="brow">
+            <button type="submit" class="btn btn-s">Record Entry</button>
+            <button type="button" class="btn btn-gh" onclick="cancelEdit('daily')">Cancel</button>
+          </div>
+        </form>
+      </div>
+      <div class="sh">Recent Check-Ins</div>
+      <div class="elist" id="listDaily"></div>
+    </div>
+
+    <!-- ── AETHER VITIS ── -->
+    <div class="sec" id="sec-aether">
+      <div class="eb" id="ebAether">Editing entry — submit to update the ledger.</div>
+      <div class="fcard">
+        <div class="ftitle t">Weekly Aether Vitis Payout</div>
+        <form id="fAether">
+          <div class="fgrid">
+            <div class="fgrp">
+              <label>Date</label>
+              <input type="date" id="av-date" required>
+            </div>
+            <div class="fgrp">
+              <label>Cambly Payout Amount</label>
+              <input type="number" id="av-amt" min="0" step="0.01" placeholder="0.00" required>
+            </div>
+            <div class="fgrp full">
+              <label>Note (optional)</label>
+              <textarea id="av-note" placeholder="Notes about this payout cycle…"></textarea>
+            </div>
+          </div>
+          <div class="brow">
+            <button type="submit" class="btn btn-t">Record Payout</button>
+            <button type="button" class="btn btn-gh" onclick="cancelEdit('aether')">Cancel</button>
+          </div>
+        </form>
+      </div>
+      <div class="sh">Payout History</div>
+      <div class="elist" id="listAether"></div>
+    </div>
+
+    <!-- ── ARCA RITUAL ── -->
+    <div class="sec" id="sec-ritual">
+      <div class="eb" id="ebRitual">Editing ritual — submit to update the treasury.</div>
+      <div class="fcard">
+        <div class="ftitle g">Elysian Arca Maturity Ritual</div>
+        <form id="fRitual">
+          <div class="fgrid">
+            <div class="fgrp">
+              <label>Maturity Date</label>
+              <input type="date" id="ar-date" required>
+            </div>
+            <div class="fgrp">
+              <label>Previous Arca Total</label>
+              <input type="number" id="ar-prev" step="0.01" placeholder="0.00" required>
+            </div>
+            <div class="fgrp">
+              <label>Amount Added</label>
+              <input type="number" id="ar-add" step="0.01" placeholder="0.00" required>
+            </div>
+            <div class="fgrp">
+              <label>New Arca Total</label>
+              <input type="number" id="ar-new" step="0.01" placeholder="auto-calculated" required>
+            </div>
+            <div class="fgrp">
+              <label>Next Maturity Date</label>
+              <input type="date" id="ar-next">
+            </div>
+            <div class="fgrp full">
+              <label>Note (optional)</label>
+              <textarea id="ar-note" placeholder="Ritual notes, context, intentions…"></textarea>
+            </div>
+          </div>
+          <div class="brow">
+            <button type="submit" class="btn btn-g">Seal the Ritual</button>
+            <button type="button" class="btn btn-gh" onclick="cancelEdit('ritual')">Cancel</button>
+          </div>
+        </form>
+      </div>
+      <div class="sh">Treasury Timeline</div>
+      <div class="fcard" style="padding:1.25rem" id="timeline"></div>
+      <div class="sh">Ritual History</div>
+      <div class="elist" id="listRitual"></div>
+    </div>
+
+    <!-- ── CHRONICLE ── -->
+    <div class="sec" id="sec-chronicle">
+      <div class="sh" style="margin-top:0">Full Chronicle</div>
+      <div class="elist" id="listChronicle"></div>
+    </div>
+
+    <!-- ── ARCHIVE ── -->
+    <div class="sec" id="sec-archive">
+      <div class="bk-card">
+        <div class="bk-title">Export Archive</div>
+        <div class="bk-desc">Download a complete JSON backup of all Elysian Arca data. This file is your treasury ledger
+          — keep it somewhere safe.</div>
+        <div class="brow"><button class="btn btn-g" onclick="exportData()">Export JSON</button></div>
+      </div>
+      <div class="bk-card">
+        <div class="bk-title">Import Archive</div>
+        <div class="bk-desc">Restore from a previously exported JSON file. This will replace all current data — export
+          first if needed.</div>
+        <div class="brow">
+          <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+          <button class="btn btn-s" onclick="document.getElementById('importFile').click()">Import JSON</button>
+        </div>
+      </div>
+      <div class="bk-card">
+        <div class="bk-title">Registrum Nubis</div>
+        <div class="bk-desc">Manually call the cloud ledger into this device, or seal this device’s current ledger into
+          the cloud.</div>
+        <div class="brow">
+          <button class="btn btn-s" onclick="syncDownFromCloud()">Evoca Registrum</button>
+          <button class="btn btn-g" onclick="syncUpToCloud()">Signa Registrum</button>
+        </div>
+      </div>
+      <div class="bk-card">
+        <div class="bk-title">Danger Zone</div>
+        <div class="bk-desc">Permanently erase all stored data. The treasury will be empty. This action cannot be undone
+          — export first.</div>
+        <div class="brow"><button class="btn btn-dx" onclick="clearAll()">Clear All Data</button></div>
+      </div>
+    </div>
+
+  </div><!-- /app -->
+
+  <div id="toast"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ SCRIPT -->
+  <script>
+    'use strict';
+
+    /* ── CONSTANTS ─────────────────────────────────────────────────────────────── */
+    const KEY = 'elysian_arca_v1';
+    const GIST_ID = '33b11a4a6e557cebdf47386735632b2c';
+    const GIST_FILE = 'elysian-arca-data.json';
+    const GITHUB_TOKEN = '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';
+    const MSGS = [
+      '"Continuity over chaos."',
+      '"The civilization survived another day."',
+      '"Small gains become empires."',
+      '"The treasury endures what the storm cannot."',
+      '"One day. One entry. One step forward."',
+      '"Stability is built in silence, entry by entry."'
+    ];
+
+    /* ── STATE ─────────────────────────────────────────────────────────────────── */
+    const editing = { daily: null, aether: null, ritual: null };
+
+    /* ── DATA + CLOUD SYNC ─────────────────────────────────────────────────────── */
+    function normaliseData(d) {
+      if (!d || typeof d !== 'object') d = {};
+      if (!d.checkIns) d.checkIns = [];
+      if (!d.payouts) d.payouts = [];
+      if (!d.arcaRituals) d.arcaRituals = [];
+      if (!d.arcellaMovements) d.arcellaMovements = [];
+      if (!d.updatedAt) d.updatedAt = '1970-01-01T00:00:00.000Z';
+      if (!d.syncVersion) d.syncVersion = 1;
+      return d;
+    }
+
+    function load() {
+      try {
+        const r = localStorage.getItem(KEY);
+        return normaliseData(r ? JSON.parse(r) : {});
+      } catch {
+        return normaliseData({});
+      }
+    }
+
+    function save(d) {
+      d = normaliseData(d);
+      d.updatedAt = new Date().toISOString();
+      d.syncVersion = 1;
+
+      localStorage.setItem(KEY, JSON.stringify(d));
+      queueCloudSync();
+    }
+
+    function saveLocalOnly(d) {
+      d = normaliseData(d);
+      localStorage.setItem(KEY, JSON.stringify(d));
+    }
+
+    function uid() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    }
+
+    let cloudSyncTimer = null;
+    let cloudSyncBusy = false;
+
+    function cloudHeaders() {
+      return {
+        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json'
+      };
+    }
+
+    function queueCloudSync() {
+      clearTimeout(cloudSyncTimer);
+      cloudSyncTimer = setTimeout(syncUpToCloud, 900);
+    }
+
+    async function fetchCloudData() {
+      const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+        headers: cloudHeaders()
+      });
+
+      if (!res.ok) throw new Error(`Cloud fetch failed: ${res.status}`);
+
+      const gist = await res.json();
+      const file = gist.files[GIST_FILE];
+
+      if (!file || !file.content) throw new Error('Cloud ledger file not found.');
+
+      return normaliseData(JSON.parse(file.content));
+    }
+
+    async function syncDownFromCloud({ silent = false } = {}) {
+      try {
+        const cloud = await fetchCloudData();
+        const local = load();
+
+        const cloudTime = cloud.updatedAt || '1970-01-01T00:00:00.000Z';
+        const localTime = local.updatedAt || '1970-01-01T00:00:00.000Z';
+
+        if (cloudTime > localTime) {
+          saveLocalOnly(cloud);
+          renderAll();
+          if (!silent) toast('Cloud ledger restored.');
+        } else if (!silent) {
+          toast('Local ledger already current.');
+        }
+      } catch (err) {
+        console.error(err);
+        if (!silent) toast('Cloud sync failed.');
+      }
+    }
+
+    async function syncUpToCloud() {
+      if (cloudSyncBusy) return;
+      cloudSyncBusy = true;
+
+      try {
+        const local = load();
+
+        const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+          method: 'PATCH',
+          headers: cloudHeaders(),
+          body: JSON.stringify({
+            files: {
+              [GIST_FILE]: {
+                content: JSON.stringify(local, null, 2)
+              }
+            }
+          })
+        });
+
+        if (!res.ok) throw new Error(`Cloud save failed: ${res.status}`);
+
+        console.log('Elysian Arca cloud sync complete.');
+        toast('Cloud ledger sealed.');
+      } catch (err) {
+        console.error(err);
+        toast('Cloud save failed.');
+      } finally {
+        cloudSyncBusy = false;
+      }
+    }
+
+    window.syncUpToCloud = syncUpToCloud;
+    window.syncDownFromCloud = syncDownFromCloud;
+
+    function initCloudSync() {
+      syncDownFromCloud({ silent: true });
+    }
+
+    /* ── DATE HELPERS ──────────────────────────────────────────────────────────── */
+    function ds(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function today() {
+      return ds(new Date());
+    }
+    function diffDays(from, to) {
+      const a = new Date(from + 'T12:00:00'), b = new Date(to + 'T12:00:00');
+      return Math.round((b - a) / 86400000);
+    }
+    function fmtDate(s) {
+      if (!s) return '—';
+      const [y, m, d] = s.split('-').map(Number);
+      return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    function fmtMoney(n) {
+      const v = Number(n) || 0;
+      const abs = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return (v < 0 ? '−$' : '$') + abs;
+    }
+    function daysAgo(n) { return ds(new Date(Date.now() - n * 86400000)); }
+
+    /* ── STATS ─────────────────────────────────────────────────────────────────── */
+    function stats() {
+      const d = load();
+      const t = today(), d30 = daysAgo(30);
+
+      const ci = [...d.checkIns].sort((a, b) => a.date.localeCompare(b.date));
+      const py = [...d.payouts].sort((a, b) => a.date.localeCompare(b.date));
+      const ar = [...d.arcaRituals].sort((a, b) => a.maturityDate.localeCompare(b.maturityDate));
+
+      /* Arca */
+      const lr = ar[ar.length - 1];
+      const arcaTotal = lr ? +lr.newTotal : 0;
+      const arcaGrowth = lr ? +lr.amountAdded : 0;
+      const nextMat = lr ? lr.nextMaturityDate : null;
+      const daysUntil = nextMat ? diffDays(t, nextMat) : null;
+
+      /* Arcella */
+      const arcellaBalFromCheckIns = ci.reduce((sum, c) => {
+        if (c.arcaTransaction === 'deposit') return sum + (+c.arcaAmount || 0);
+        if (c.arcaTransaction === 'withdrawal') return sum - (+c.arcaAmount || 0);
+        return sum;
+      }, 0);
+
+      const arcellaBalFromQuick = (d.arcellaMovements || []).reduce((sum, m) => {
+        if (m.type === 'deposit') return sum + (+m.amount || 0);
+        if (m.type === 'withdrawal') return sum - (+m.amount || 0);
+        return sum;
+      }, 0);
+
+      const arcellaBal = arcellaBalFromCheckIns + arcellaBalFromQuick;
+
+      const net30ci = ci.filter(c => c.date >= d30 && c.arcaTransaction !== 'none')
+        .reduce((s, c) => c.arcaTransaction === 'deposit'
+          ? s + (+c.arcaAmount || 0)
+          : s - (+c.arcaAmount || 0), 0);
+
+      const net30q = (d.arcellaMovements || [])
+        .filter(m => m.date >= d30)
+        .reduce((s, m) => m.type === 'deposit'
+          ? s + (+m.amount || 0)
+          : s - (+m.amount || 0), 0);
+
+      const net30 = net30ci + net30q;
+
+      /* Vitis */
+      const lp = py[py.length - 1];
+      const last4 = py.slice(-4);
+      const l4sum = last4.reduce((s, p) => s + +p.amount, 0);
+
+      /* Sobriety */
+      let streak = 0;
+      for (const c of [...ci].reverse()) {
+        if (c.alcoholStatus === 'sober') streak++;
+        else break;
+      }
+      const sober30 = ci.filter(c => c.date >= d30 && c.alcoholStatus === 'sober').length;
+      const workouts30 = ci.filter(c => c.date >= d30 && c.workoutCompleted === 'yes').length;
+
+      /* Status message */
+      const tod = ci.find(c => c.date === t);
+      let msg = 'Awaiting today\'s chronicle entry.';
+      if (tod) {
+        if (tod.alcoholStatus === 'binge') {
+          msg = 'Storm detected. Treasury integrity remains the priority.';
+        } else {
+          const pos = (tod.alcoholStatus === 'sober') + (tod.workoutCompleted === 'yes') + (tod.arcaTransaction === 'deposit');
+          msg = pos > 0 ? 'Civilization maintained.' : 'Entry recorded. The treasury watches.';
+        }
+      }
+      if (lr && lr.maturityDate === t && arcaGrowth > 0) msg = 'Treasury Expanded. The wealth endures.';
+
+      return {
+        arcaTotal, arcaGrowth, nextMat, daysUntil, arcellaBal, net30,
+        lastPayout: lp ? +lp.amount : 0, last4, l4sum,
+        streak, sober30, workouts30, msg
+      };
+    }
+
+    /* ── RENDER DASHBOARD ──────────────────────────────────────────────────────── */
+    function renderDash() {
+      const s = stats();
+      document.getElementById('statusLine').textContent = s.msg;
+
+      /* Hero cards */
+      document.getElementById('statGrid').innerHTML = `
+    <div class="scard g">
+      <div class="scard-lbl">Elysian Arca</div>
+      <div class="scard-val">${fmtMoney(s.arcaTotal)}</div>
+      <div class="scard-sub">${s.arcaGrowth > 0 ? '↑ ' + fmtMoney(s.arcaGrowth) + ' last ritual' : 'Awaiting first ritual'}</div>
+    </div>
+    <div class="scard g">
+      <div class="scard-lbl">Next Maturity</div>
+      <div class="scard-val" style="font-size:1.05rem;line-height:1.3">${s.nextMat ? fmtDate(s.nextMat) : '—'}</div>
+      <div class="scard-sub">${s.daysUntil !== null ? s.daysUntil + ' days remaining' : 'No ritual recorded'}</div>
+    </div>
+    <div class="scard s">
+      <div class="scard-lbl">La Arcella</div>
+      <div class="scard-val">${fmtMoney(s.arcellaBal)}</div>
+      <div class="scard-sub">Active runway</div>
+    </div>
+    <div class="scard t">
+      <div class="scard-lbl">Last Aether Vitis</div>
+      <div class="scard-val">${fmtMoney(s.lastPayout)}</div>
+      <div class="scard-sub">Last Cambly payout</div>
+    </div>
+    <div class="scard s">
+      <div class="scard-lbl">Sober Streak</div>
+      <div class="scard-val">${s.streak} <span style="font-size:.9rem;font-family:var(--ff-sans)">days</span></div>
+      <div class="scard-sub">${s.sober30} sober / last 30 days</div>
+    </div>
+    <div class="scard s">
+      <div class="scard-lbl">Training</div>
+      <div class="scard-val">${s.workouts30} <span style="font-size:.9rem;font-family:var(--ff-sans)">sessions</span></div>
+      <div class="scard-sub">Last 30 days</div>
+    </div>
+  `;
+
+      /* 30-day strip */
+      const net30Color = s.net30 >= 0 ? 'var(--silver-lt)' : 'var(--danger)';
+      document.getElementById('sum30').innerHTML = `
+    <div class="sum-item"><div class="sum-n" style="color:${net30Color}">${fmtMoney(s.net30)}</div><div class="sum-l">Arcella Net</div></div>
+    <div class="sum-item"><div class="sum-n" style="color:var(--teal-lt)">${fmtMoney(s.l4sum)}</div><div class="sum-l">Vitis (4 payouts)</div></div>
+    <div class="sum-item"><div class="sum-n" style="color:var(--silver-lt)">${s.sober30}</div><div class="sum-l">Sober Days</div></div>
+    <div class="sum-item"><div class="sum-n" style="color:var(--silver-lt)">${s.workouts30}</div><div class="sum-l">Workouts</div></div>
+  `;
+
+      /* Last 4 payouts */
+      const rev = [...s.last4].reverse();
+      document.getElementById('last4').innerHTML = rev.length === 0
+        ? '<div class="empty">No payout entries yet. Record your first Aether Vitis payout.</div>'
+        : '<div class="pay-list">' + rev.map(p =>
+          `<div class="pay-item">
+           <span class="pay-date">${fmtDate(p.date)}</span>
+           <span class="pay-note">${esc(p.note || '')}</span>
+           <span class="pay-amt">${fmtMoney(p.amount)}</span>
+         </div>`
+        ).join('') + '</div>';
+    }
+
+    /* ── RENDER DAILY ──────────────────────────────────────────────────────────── */
+    function renderDaily() {
+      const d = load();
+      const items = [...d.checkIns].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 50);
+      document.getElementById('listDaily').innerHTML = items.length === 0
+        ? '<div class="empty">No check-in entries yet.</div>'
+        : items.map(e => {
+          const alcIcon = e.alcoholStatus === 'sober' ? '✦ Sober' : e.alcoholStatus === 'drank' ? '◈ Drank' : '◌ Binge';
+          const wkIcon = e.workoutCompleted === 'yes' ? '✦ Trained' : '◌ Rest day';
+          const txPart = e.arcaTransaction !== 'none'
+            ? ` &nbsp;·&nbsp; ${e.arcaTransaction === 'deposit' ? '↑' : '↓'} Arcella ${fmtMoney(e.arcaAmount)}`
+            : '';
+          const notePart = e.note ? `<br><span style="opacity:.55;font-size:.8rem">${esc(e.note)}</span>` : '';
+          return `<div class="eitem">
+          <div class="emain">
+            <div class="etype s">Daily Check-In</div>
+            <div class="edate">${fmtDate(e.date)}</div>
+            <div class="ebody">${alcIcon} &nbsp;·&nbsp; ${wkIcon}${txPart}${notePart}</div>
+          </div>
+          <div class="eacts">
+            <button class="ebtn ebtn-e" onclick="editE('daily','${e.id}')">Edit</button>
+            <button class="ebtn ebtn-d" onclick="delE('checkIns','${e.id}')">Delete</button>
+          </div>
+        </div>`;
+        }).join('');
+    }
+
+    /* ── RENDER AETHER ─────────────────────────────────────────────────────────── */
+    function renderAether() {
+      const d = load();
+      const items = [...d.payouts].sort((a, b) => b.date.localeCompare(a.date));
+      document.getElementById('listAether').innerHTML = items.length === 0
+        ? '<div class="empty">No payout entries yet.</div>'
+        : items.map(e => {
+          const notePart = e.note ? `<br><span style="opacity:.55;font-size:.8rem">${esc(e.note)}</span>` : '';
+          return `<div class="eitem">
+          <div class="emain">
+            <div class="etype t">Aether Vitis</div>
+            <div class="edate">${fmtDate(e.date)}</div>
+            <div class="ebody"><span style="color:var(--teal-lt);font-family:var(--ff-mono);font-size:1.1rem">${fmtMoney(e.amount)}</span>${notePart}</div>
+          </div>
+          <div class="eacts">
+            <button class="ebtn ebtn-e" onclick="editE('aether','${e.id}')">Edit</button>
+            <button class="ebtn ebtn-d" onclick="delE('payouts','${e.id}')">Delete</button>
+          </div>
+        </div>`;
+        }).join('');
+    }
+
+    /* ── RENDER RITUAL ─────────────────────────────────────────────────────────── */
+    function renderRitual() {
+      const d = load();
+      const items = [...d.arcaRituals].sort((a, b) => b.maturityDate.localeCompare(a.maturityDate));
+      document.getElementById('listRitual').innerHTML = items.length === 0
+        ? '<div class="empty">No rituals recorded yet.</div>'
+        : items.map(e => {
+          const nextPart = e.nextMaturityDate ? `<br><span style="opacity:.45;font-size:.72rem">Next: ${fmtDate(e.nextMaturityDate)}</span>` : '';
+          const notePart = e.note ? `<br><span style="opacity:.55;font-size:.8rem">${esc(e.note)}</span>` : '';
+          return `<div class="eitem">
+          <div class="emain">
+            <div class="etype g">Arca Ritual</div>
+            <div class="edate">${fmtDate(e.maturityDate)}</div>
+            <div class="ebody">
+              <span style="color:var(--gold-lt);font-family:var(--ff-mono);font-size:1.1rem">${fmtMoney(e.newTotal)}</span>
+              <span style="color:var(--text-3)"> (+${fmtMoney(e.amountAdded)})</span>
+              ${nextPart}${notePart}
+            </div>
+          </div>
+          <div class="eacts">
+            <button class="ebtn ebtn-e" onclick="editE('ritual','${e.id}')">Edit</button>
+            <button class="ebtn ebtn-d" onclick="delE('arcaRituals','${e.id}')">Delete</button>
+          </div>
+        </div>`;
+        }).join('');
+    }
+
+    /* ── RENDER TIMELINE ───────────────────────────────────────────────────────── */
+    function renderTimeline() {
+      const d = load();
+      const rituals = [...d.arcaRituals].sort((a, b) => a.maturityDate.localeCompare(b.maturityDate));
+      const el = document.getElementById('timeline');
+      if (rituals.length === 0) {
+        el.innerHTML = '<div class="empty" style="padding:1rem">No Arca rituals yet. The treasury timeline will appear here.</div>';
+        return;
+      }
+      const max = Math.max(...rituals.map(r => +r.newTotal));
+      el.innerHTML = '<div class="tl">' + rituals.map(r => {
+        const pct = max > 0 ? (+r.newTotal / max * 100).toFixed(1) : 0;
+        return `<div class="tl-row">
+      <span class="tl-date">${fmtDate(r.maturityDate).replace(',', ' ')}</span>
+      <div class="tl-wrap"><div class="tl-bar" style="width:${pct}%"></div></div>
+      <span class="tl-val">${fmtMoney(r.newTotal)}</span>
+    </div>`;
+      }).join('') + '</div>';
+    }
+
+    /* ── RENDER CHRONICLE ──────────────────────────────────────────────────────── */
+    function renderChronicle() {
+      const d = load();
+
+      const all = [
+        ...d.checkIns.map(e => ({ ...e, _t: 'daily', _d: e.date })),
+        ...d.payouts.map(e => ({ ...e, _t: 'aether', _d: e.date })),
+        ...d.arcaRituals.map(e => ({ ...e, _t: 'ritual', _d: e.maturityDate })),
+        ...(d.arcellaMovements || []).map(e => ({ ...e, _t: 'arcella', _d: e.date }))
+      ].sort((a, b) => {
+        const dateCompare = b._d.localeCompare(a._d);
+        if (dateCompare !== 0) return dateCompare;
+
+        const aTime = a.createdAt || a.id || '';
+        const bTime = b.createdAt || b.id || '';
+
+        return bTime.localeCompare(aTime);
+      });
+
+      document.getElementById('listChronicle').innerHTML = all.length === 0
+        ? '<div class="empty">The chronicle is empty. Begin your first entry.</div>'
+        : all.map(e => {
+
+          if (e._t === 'daily') {
+            const alcIcon = e.alcoholStatus === 'sober' ? '✦ Sober' : e.alcoholStatus === 'drank' ? '◈ Drank' : '◌ Binge';
+            const wkIcon = e.workoutCompleted === 'yes' ? '✦ Trained' : '◌ Rest day';
+            const txPart = e.arcaTransaction !== 'none'
+              ? ` &nbsp;·&nbsp; ${e.arcaTransaction === 'deposit' ? '↑' : '↓'} ${fmtMoney(e.arcaAmount)}`
+              : '';
+            const np = e.note ? `<br><span style="opacity:.5;font-size:.8rem">${esc(e.note)}</span>` : '';
+
+            return `<div class="eitem">
+          <div class="emain">
+            <div class="etype s">Daily</div>
+            <div class="edate">${fmtDate(e.date)}</div>
+            <div class="ebody">${alcIcon} &nbsp;·&nbsp; ${wkIcon}${txPart}${np}</div>
+          </div>
+          <div class="eacts">
+            <button class="ebtn ebtn-e" onclick="editE('daily','${e.id}')">Edit</button>
+            <button class="ebtn ebtn-d" onclick="delE('checkIns','${e.id}')">Delete</button>
+          </div>
+        </div>`;
+          }
+
+          if (e._t === 'aether') {
+            const np = e.note ? `<br><span style="opacity:.5;font-size:.8rem">${esc(e.note)}</span>` : '';
+
+            return `<div class="eitem">
+          <div class="emain">
+            <div class="etype t">Aether Vitis</div>
+            <div class="edate">${fmtDate(e.date)}</div>
+            <div class="ebody">
+              <span style="color:var(--teal-lt);font-family:var(--ff-mono)">${fmtMoney(e.amount)}</span>${np}
+            </div>
+          </div>
+          <div class="eacts">
+            <button class="ebtn ebtn-e" onclick="editE('aether','${e.id}')">Edit</button>
+            <button class="ebtn ebtn-d" onclick="delE('payouts','${e.id}')">Delete</button>
+          </div>
+        </div>`;
+          }
+
+          if (e._t === 'arcella') {
+            const isDeposit = e.type === 'deposit';
+            const amount = isDeposit ? '+' + fmtMoney(e.amount) : '-' + fmtMoney(e.amount);
+            const np = e.note ? `<br><span style="opacity:.5;font-size:.8rem">${esc(e.note)}</span>` : '';
+
+            return `<div class="eitem">
+          <div class="emain">
+            <div class="etype s">La Arcella</div>
+            <div class="edate">${fmtDate(e.date)}</div>
+            <div class="ebody">
+              <span style="color:${isDeposit ? 'var(--silver-lt)' : 'var(--danger)'};font-family:var(--ff-mono)">${amount}</span>${np}
+            </div>
+          </div>
+          <div class="eacts">
+            <button class="ebtn ebtn-e" onclick="editArcellaMovement('${e.id}')">Edit</button>
+            <button class="ebtn ebtn-d" onclick="delArcellaMovement('${e.id}')">Delete</button>
+          </div>
+        </div>`;
+          }
+
+          const np = e.note ? `<br><span style="opacity:.5;font-size:.8rem">${esc(e.note)}</span>` : '';
+
+          return `<div class="eitem">
+        <div class="emain">
+          <div class="etype g">Arca Ritual</div>
+          <div class="edate">${fmtDate(e.maturityDate)}</div>
+          <div class="ebody">
+            <span style="color:var(--gold-lt);font-family:var(--ff-mono)">${fmtMoney(e.newTotal)}</span>
+            <span style="color:var(--text-3)">(+${fmtMoney(e.amountAdded)})</span>${np}
+          </div>
+        </div>
+        <div class="eacts">
+          <button class="ebtn ebtn-e" onclick="editE('ritual','${e.id}')">Edit</button>
+          <button class="ebtn ebtn-d" onclick="delE('arcaRituals','${e.id}')">Delete</button>
+        </div>
+      </div>`;
+        }).join('');
+    }
+
+    /* ── RENDER ALL ────────────────────────────────────────────────────────────── */
+    function renderAll() {
+      renderDash();
+      renderDaily();
+      renderAether();
+      renderRitual();
+      renderTimeline();
+      renderChronicle();
+    }
+
+    /* ── LANDING ───────────────────────────────────────────────────────────────── */
+    function enterArca() {
+      document.getElementById('landing').classList.add('gone');
+      const app = document.getElementById('app');
+      app.classList.remove('off');
+      requestAnimationFrame(() => requestAnimationFrame(() => app.classList.add('vis')));
+    }
+
+    /* ── NAVIGATION ────────────────────────────────────────────────────────────── */
+    document.querySelectorAll('.ntab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sec = btn.dataset.sec;
+        document.querySelectorAll('.ntab').forEach(b => b.classList.remove('on'));
+        document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
+        btn.classList.add('on');
+        document.getElementById('sec-' + sec).classList.add('on');
+        if (sec === 'chronicle') renderChronicle();
+      });
+    });
+
+    function goTab(sec) {
+      document.querySelectorAll('.ntab').forEach(b => {
+        if (b.dataset.sec === sec) b.classList.add('on'); else b.classList.remove('on');
+      });
+      document.querySelectorAll('.sec').forEach(s => {
+        if (s.id === 'sec-' + sec) s.classList.add('on'); else s.classList.remove('on');
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ── FORM: DAILY ───────────────────────────────────────────────────────────── */
+    function calcArcellaBalance(excludeCheckInId) {
+      const d = load();
+
+      const fromCheckIns = d.checkIns.reduce((sum, c) => {
+        if (excludeCheckInId && c.id === excludeCheckInId) return sum;
+
+        if (c.arcaTransaction === 'deposit') return sum + (+c.arcaAmount || 0);
+        if (c.arcaTransaction === 'withdrawal') return sum - (+c.arcaAmount || 0);
+
+        return sum;
+      }, 0);
+
+      const fromQuick = (d.arcellaMovements || []).reduce((sum, m) => {
+        if (m.type === 'deposit') return sum + (+m.amount || 0);
+        if (m.type === 'withdrawal') return sum - (+m.amount || 0);
+
+        return sum;
+      }, 0);
+
+      return fromCheckIns + fromQuick;
+    }
+
+    function currentArcellaBalance() {
+      return calcArcellaBalance(editing.daily || null);
+    }
+
+    function updateArcellaPreview() {
+      const tx = document.getElementById('di-tx').value;
+      const amt = +document.getElementById('di-amt').value || 0;
+
+      let projected = currentArcellaBalance();
+
+      if (tx === 'deposit') projected += amt;
+      if (tx === 'withdrawal') projected -= amt;
+
+      document.getElementById('di-bal').value = fmtMoney(projected);
+    }
+
+    function toggleTx() {
+      const show = document.getElementById('di-tx').value !== 'none';
+
+      document.getElementById('txAmt').style.display = show ? '' : 'none';
+      document.getElementById('txBal').style.display = show ? '' : 'none';
+
+      if (show) updateArcellaPreview();
+    }
+
+    document.getElementById('di-amt').addEventListener('input', updateArcellaPreview);
+    document.getElementById('di-tx').addEventListener('change', updateArcellaPreview);
+
+    document.getElementById('fDaily').addEventListener('submit', e => {
+      e.preventDefault();
+      const d = load();
+      const id = editing.daily || uid();
+      const entry = {
+        id,
+        date: document.getElementById('di-date').value,
+        alcoholStatus: document.getElementById('di-alc').value,
+        workoutCompleted: document.getElementById('di-wk').value,
+        arcaTransaction: document.getElementById('di-tx').value,
+        arcaAmount: document.getElementById('di-amt').value || 0,
+        note: document.getElementById('di-note').value.trim()
+      };
+      if (editing.daily) {
+        const i = d.checkIns.findIndex(c => c.id === id);
+        if (i >= 0) d.checkIns[i] = entry; else d.checkIns.push(entry);
+      } else {
+        d.checkIns.push(entry);
+      }
+      save(d);
+      toast(editing.daily ? 'Entry updated.' : 'Check-in recorded.');
+      cancelEdit('daily');
+      renderAll();
+    });
+
+    /* ── FORM: AETHER ──────────────────────────────────────────────────────────── */
+    document.getElementById('fAether').addEventListener('submit', e => {
+      e.preventDefault();
+      const d = load();
+      const id = editing.aether || uid();
+      const entry = {
+        id,
+        date: document.getElementById('av-date').value,
+        amount: document.getElementById('av-amt').value,
+        note: document.getElementById('av-note').value.trim()
+      };
+      if (editing.aether) {
+        const i = d.payouts.findIndex(p => p.id === id);
+        if (i >= 0) d.payouts[i] = entry; else d.payouts.push(entry);
+      } else {
+        d.payouts.push(entry);
+      }
+      save(d);
+      toast(editing.aether ? 'Payout updated.' : 'Payout recorded. Aether Vitis flows.');
+      cancelEdit('aether');
+      renderAll();
+    });
+
+    /* ── FORM: RITUAL ──────────────────────────────────────────────────────────── */
+    /* Auto-calc new total */
+    function calcRitualTotal() {
+      const prev = +document.getElementById('ar-prev').value || 0;
+      const add = +document.getElementById('ar-add').value || 0;
+      if (prev || add) document.getElementById('ar-new').value = (prev + add).toFixed(2);
+    }
+    document.getElementById('ar-prev').addEventListener('input', calcRitualTotal);
+    document.getElementById('ar-add').addEventListener('input', calcRitualTotal);
+
+    document.getElementById('fRitual').addEventListener('submit', e => {
+      e.preventDefault();
+      const d = load();
+      const id = editing.ritual || uid();
+      const entry = {
+        id,
+        maturityDate: document.getElementById('ar-date').value,
+        previousTotal: document.getElementById('ar-prev').value,
+        amountAdded: document.getElementById('ar-add').value,
+        newTotal: document.getElementById('ar-new').value,
+        nextMaturityDate: document.getElementById('ar-next').value || null,
+        note: document.getElementById('ar-note').value.trim()
+      };
+      if (editing.ritual) {
+        const i = d.arcaRituals.findIndex(r => r.id === id);
+        if (i >= 0) d.arcaRituals[i] = entry; else d.arcaRituals.push(entry);
+      } else {
+        d.arcaRituals.push(entry);
+      }
+      save(d);
+      toast(editing.ritual ? 'Ritual updated.' : 'Ritual sealed. Treasury Expanded.');
+      cancelEdit('ritual');
+      renderAll();
+    });
+
+    /* ── EDIT ENTRIES ──────────────────────────────────────────────────────────── */
+    function editE(type, id) {
+      const d = load();
+      if (type === 'daily') {
+        const e = d.checkIns.find(c => c.id === id); if (!e) return;
+        editing.daily = id;
+        document.getElementById('di-date').value = e.date;
+        document.getElementById('di-alc').value = e.alcoholStatus;
+        document.getElementById('di-wk').value = e.workoutCompleted;
+        document.getElementById('di-tx').value = e.arcaTransaction;
+        document.getElementById('di-amt').value = e.arcaAmount || '';
+        document.getElementById('di-note').value = e.note || '';
+        toggleTx();
+        document.getElementById('ebDaily').classList.add('on');
+        goTab('daily');
+      } else if (type === 'aether') {
+        const e = d.payouts.find(p => p.id === id); if (!e) return;
+        editing.aether = id;
+        document.getElementById('av-date').value = e.date;
+        document.getElementById('av-amt').value = e.amount;
+        document.getElementById('av-note').value = e.note || '';
+        document.getElementById('ebAether').classList.add('on');
+        goTab('aether');
+      } else if (type === 'ritual') {
+        const e = d.arcaRituals.find(r => r.id === id); if (!e) return;
+        editing.ritual = id;
+        document.getElementById('ar-date').value = e.maturityDate;
+        document.getElementById('ar-prev').value = e.previousTotal;
+        document.getElementById('ar-add').value = e.amountAdded;
+        document.getElementById('ar-new').value = e.newTotal;
+        document.getElementById('ar-next').value = e.nextMaturityDate || '';
+        document.getElementById('ar-note').value = e.note || '';
+        document.getElementById('ebRitual').classList.add('on');
+        goTab('ritual');
+      }
+    }
+
+    function cancelEdit(type) {
+      editing[type] = null;
+      if (type === 'daily') {
+        document.getElementById('fDaily').reset();
+        document.getElementById('ebDaily').classList.remove('on');
+        document.getElementById('txAmt').style.display = 'none';
+        document.getElementById('txBal').style.display = 'none';
+        document.getElementById('di-date').value = today();
+      } else if (type === 'aether') {
+        document.getElementById('fAether').reset();
+        document.getElementById('ebAether').classList.remove('on');
+        document.getElementById('av-date').value = today();
+      } else if (type === 'ritual') {
+        document.getElementById('fRitual').reset();
+        document.getElementById('ebRitual').classList.remove('on');
+
+        const rituals = [...load().arcaRituals].sort((a, b) => a.maturityDate.localeCompare(b.maturityDate));
+        const lr = rituals[rituals.length - 1];
+
+        document.getElementById('ar-date').value = lr?.nextMaturityDate || today();
+        document.getElementById('ar-prev').value = lr ? (+lr.newTotal || 0).toFixed(2) : '';
+        document.getElementById('ar-new').value = lr ? (+lr.newTotal || 0).toFixed(2) : '';
+        document.getElementById('ar-next').value = ds(new Date(new Date((lr?.nextMaturityDate || today()) + 'T12:00:00').getTime() + 30 * 86400000));
+      }
+    }
+
+    /* ── DELETE ────────────────────────────────────────────────────────────────── */
+    function delE(coll, id) {
+      if (!confirm('Remove this entry from the treasury ledger?\nThis cannot be undone.')) return;
+      const d = load();
+      d[coll] = d[coll].filter(e => e.id !== id);
+      save(d);
+      renderAll();
+      toast('Entry removed from ledger.');
+    }
+
+    function delArcellaMovement(id) {
+      if (!confirm('Remove this Arcella movement from the treasury ledger?\nThis cannot be undone.')) return;
+
+      const d = load();
+      d.arcellaMovements = (d.arcellaMovements || []).filter(e => e.id !== id);
+
+      save(d);
+      renderAll();
+      toast('Arcella movement removed.');
+    }
+
+    function editArcellaMovement(id) {
+      const d = load();
+      const e = (d.arcellaMovements || []).find(m => m.id === id);
+
+      if (!e) return;
+
+      const type = prompt('Type: deposit or withdrawal', e.type || 'withdrawal');
+      if (type === null) return;
+
+      const cleanType = type.trim().toLowerCase();
+
+      if (cleanType !== 'deposit' && cleanType !== 'withdrawal') {
+        toast('Type must be deposit or withdrawal.');
+        return;
+      }
+
+      const date = prompt('Date', e.date || today());
+      if (date === null) return;
+
+      const amount = prompt('Amount', e.amount);
+      if (amount === null) return;
+
+      const note = prompt('Note', e.note || '');
+      if (note === null) return;
+
+      e.type = cleanType;
+      e.date = date.trim() || today();
+      e.amount = amount;
+      e.note = note.trim();
+
+      save(d);
+      renderAll();
+      toast('Arcella movement updated.');
+    }
+    /* ── EXPORT / IMPORT ───────────────────────────────────────────────────────── */
+    function exportData() {
+      const blob = new Blob([JSON.stringify(load(), null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'elysian-arca-' + today() + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('Archive exported.');
+    }
+
+    function importData(ev) {
+      const file = ev.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev2 => {
+        try {
+          const data = JSON.parse(ev2.target.result);
+          if (!data.checkIns || !data.payouts || !data.arcaRituals) throw 0;
+          if (!confirm('Replace all current data with this archive? Export first if needed.')) return;
+          save(data);
+          renderAll();
+          toast('Archive restored. Treasury synchronized.');
+        } catch { toast('Import failed — invalid archive file.'); }
+      };
+      reader.readAsText(file);
+      ev.target.value = '';
+    }
+
+    function clearAll() {
+      if (!confirm('Permanently erase ALL Elysian Arca data?\nThis cannot be undone — export first.')) return;
+      localStorage.removeItem(KEY);
+      renderAll();
+      toast('Data cleared. The treasury resets.');
+    }
+
+    /* ── TOAST ─────────────────────────────────────────────────────────────────── */
+    let _toastTimer;
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('on');
+      clearTimeout(_toastTimer);
+      _toastTimer = setTimeout(() => el.classList.remove('on'), 2800);
+    }
+
+    /* ── ESCAPE ────────────────────────────────────────────────────────────────── */
+    function esc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    /* ── INIT ──────────────────────────────────────────────────────────────────── */
+    function init() {
+      /* Landing message */
+      document.getElementById('landMsg').textContent = MSGS[Math.floor(Math.random() * MSGS.length)];
+
+      /* Header date */
+      document.getElementById('hdDate').textContent =
+        new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase();
+
+      /* Default form dates */
+      document.getElementById('di-date').value = today();
+      document.getElementById('av-date').value = today();
+
+      const rituals = [...load().arcaRituals].sort((a, b) => a.maturityDate.localeCompare(b.maturityDate));
+      const lr = rituals[rituals.length - 1];
+
+      document.getElementById('ar-date').value = lr?.nextMaturityDate || today();
+      document.getElementById('ar-prev').value = lr ? (+lr.newTotal || 0).toFixed(2) : '';
+      document.getElementById('ar-new').value = lr ? (+lr.newTotal || 0).toFixed(2) : '';
+      document.getElementById('ar-next').value = ds(new Date(new Date((lr?.nextMaturityDate || today()) + 'T12:00:00').getTime() + 30 * 86400000));
+
+      renderAll();
+      initCloudSync();
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
