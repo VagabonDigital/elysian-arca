@@ -1,0 +1,11 @@
+{
+  "name": "Arca Mobilis",
+  "short_name": "Arca",
+  "description": "A private mythological treasury terminal for savings, runway, income flow, rituals, and daily stability.",
+  "start_url": "arca-mobilis.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#070a10",
+  "theme_color": "#070a10",
+  "orientation": "portrait"
+}
