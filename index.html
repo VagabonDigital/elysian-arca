@@ -366,6 +366,37 @@ stroke-width='6'/>
       letter-spacing: .08em;
     }
 
+    .hd-right {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+    }
+
+    .mode-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, .025);
+      color: var(--text-2);
+      font-family: var(--ff-serif);
+      font-size: 1rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color .2s, background .2s, color .2s;
+      flex-shrink: 0;
+    }
+
+    .mode-btn:hover {
+      border-color: var(--border-hi);
+      background: rgba(255, 255, 255, .07);
+      color: var(--text);
+    }
+
+
     /* ─── NAV ──────────────────────────────────────────────────────────────────── */
     .nav {
       display: flex;
@@ -1070,6 +1101,105 @@ stroke-width='6'/>
       transform: translateX(-50%) translateY(0);
     }
 
+    /* ─── DAY / NIGHT MODE ──────────────────────────────────────────────────── */
+    body.day-mode {
+      --bg: #d8d0bf;
+      --bg-2: #cfc6b5;
+      --bg-card: #ece5d8;
+      --bg-card-hi: #f4ecdd;
+      --bg-input: #f7efe2;
+      --border: rgba(40, 48, 62, 0.18);
+      --border-hi: rgba(40, 48, 62, 0.30);
+
+      --gold: #8b6f23;
+      --gold-lt: #6f5516;
+      --gold-dim: rgba(139, 111, 35, 0.13);
+      --gold-glow: rgba(139, 111, 35, 0.16);
+
+      --teal: #167d7a;
+      --teal-lt: #0f6866;
+      --teal-dim: rgba(22, 125, 122, 0.11);
+
+      --silver: #496f87;
+      --silver-lt: #355f7a;
+      --silver-dim: rgba(73, 111, 135, 0.12);
+
+      --text: #172033;
+      --text-2: #354257;
+      --text-3: #627086;
+      --text-4: #8b96a6;
+
+      --danger: #9f5136;
+      --success: #3d7656;
+    }
+
+    body.day-mode::before {
+      background:
+        radial-gradient(ellipse 90% 55% at 50% 0%, rgba(139, 111, 35, 0.12) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 10% 100%, rgba(22, 125, 122, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 35% at 90% 60%, rgba(73, 111, 135, 0.08) 0%, transparent 55%);
+    }
+
+    body.day-mode #landing {
+      background: var(--bg);
+    }
+
+    body.day-mode .land-glow {
+      background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(139, 111, 35, .16) 0%, transparent 65%);
+    }
+
+    body.day-mode .hd {
+      background: rgba(216, 208, 191, .88);
+      border-color: var(--border);
+    }
+
+    body.day-mode .nav {
+      border-color: var(--border);
+    }
+
+    body.day-mode .scard,
+    body.day-mode .sum-item,
+    body.day-mode .fcard,
+    body.day-mode .eitem,
+    body.day-mode .bk-card {
+      box-shadow: 0 8px 24px rgba(40, 48, 62, .045);
+    }
+
+    body.day-mode .scard.g {
+      border-color: rgba(139, 111, 35, .34);
+    }
+
+    body.day-mode .scard.t,
+    body.day-mode .pay-item {
+      border-color: rgba(22, 125, 122, .28);
+    }
+
+    body.day-mode .scard.s,
+    body.day-mode .sum-item,
+    body.day-mode .fcard,
+    body.day-mode .eitem,
+    body.day-mode .bk-card {
+      border-color: rgba(73, 111, 135, .28);
+    }
+
+    body.day-mode input[type=text],
+    body.day-mode input[type=date],
+    body.day-mode input[type=number],
+    body.day-mode input[type=password],
+    body.day-mode select,
+    body.day-mode textarea {
+      border-color: rgba(40, 48, 62, .16);
+    }
+
+    body.day-mode select option {
+      background: #f7efe2;
+      color: #172033;
+    }
+
+    body.day-mode #toast {
+      background: var(--bg-card-hi);
+    }
+
     /* ─── SCROLLBAR ────────────────────────────────────────────────────────────── */
     ::-webkit-scrollbar {
       width: 5px;
@@ -1128,7 +1258,10 @@ stroke-width='6'/>
 
     <header class="hd">
       <span class="hd-name">ELYSIAN ARCA</span>
-      <span class="hd-date" id="hdDate"></span>
+      <div class="hd-right">
+        <span class="hd-date" id="hdDate"></span>
+        <button class="mode-btn" id="modeBtn" onclick="toggleMode()" aria-label="Toggle day and night mode">☾</button>
+      </div>
     </header>
 
     <nav class="nav">
@@ -1348,6 +1481,7 @@ stroke-width='6'/>
 
     /* ── CONSTANTS ─────────────────────────────────────────────────────────────── */
     const KEY = 'elysian_arca_v1';
+    const THEME_KEY = 'elysian_arca_theme_v1';
     const GIST_ID = '33b11a4a6e557cebdf47386735632b2c';
     const GIST_FILE = 'elysian-arca-data.json';
     const TOKEN_KEY = 'elysian_arca_sync_token';
@@ -1419,6 +1553,25 @@ stroke-width='6'/>
 
       panel.classList.toggle('on');
       refreshSyncKeyUI();
+    }
+
+    function applyMode(mode) {
+      const isDay = mode === 'day';
+      document.body.classList.toggle('day-mode', isDay);
+
+      const btn = document.getElementById('modeBtn');
+      if (btn) {
+        btn.textContent = isDay ? '☀' : '☾';
+        btn.setAttribute('aria-label', isDay ? 'Switch to night mode' : 'Switch to day mode');
+      }
+    }
+
+    function toggleMode() {
+      const isDay = document.body.classList.contains('day-mode');
+      const next = isDay ? 'night' : 'day';
+
+      localStorage.setItem(THEME_KEY, next);
+      applyMode(next);
     }
 
     function clearSyncKey() {
@@ -2288,6 +2441,7 @@ stroke-width='6'/>
       document.getElementById('ar-new').value = lr ? (+lr.newTotal || 0).toFixed(2) : '';
       document.getElementById('ar-next').value = ds(new Date(new Date((lr?.nextMaturityDate || today()) + 'T12:00:00').getTime() + 30 * 86400000));
 
+      applyMode(localStorage.getItem(THEME_KEY) || 'night');
       refreshSyncKeyUI();
       renderAll();
       initCloudSync();
