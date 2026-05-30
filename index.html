@@ -601,6 +601,114 @@ stroke-width='6'/>
       color: var(--text-3);
     }
 
+    /* ─── AETHER SUMMARY CARDS ────────────────────────────────────────────────── */
+    #sec-aether #aetherSummary {
+      margin-bottom: 1.35rem;
+      gap: .8rem;
+    }
+
+    #sec-aether #aetherSummary .aether-summary-card {
+      border-color: rgba(68, 194, 190, .18);
+      background:
+        linear-gradient(180deg, rgba(68, 194, 190, .025), transparent 72%),
+        var(--bg-card);
+      position: relative;
+      overflow: hidden;
+      padding: .85rem .95rem;
+    }
+
+    #sec-aether #aetherSummary .aether-summary-card .sum-n {
+      color: var(--teal-lt);
+    }
+
+    .aether-summary-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(200, 164, 74, .34);
+      color: var(--gold-lt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: .55rem;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(200, 164, 74, .10), transparent 62%),
+        rgba(200, 164, 74, .035);
+    }
+
+    .aether-summary-badge svg {
+      width: 21px;
+      height: 21px;
+      display: block;
+    }
+
+    .aether-summary-badge svg path,
+    .aether-summary-badge svg circle {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.55;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .aether-summary-badge.pulse {
+      border-color: rgba(68, 194, 190, .34);
+      color: var(--teal-lt);
+      background:
+        radial-gradient(circle at 50% 50%, rgba(68, 194, 190, .11), transparent 62%),
+        rgba(68, 194, 190, .04);
+    }
+
+    /* ─── AETHER VITIS POLISH ─────────────────────────────────────────────────── */
+    #sec-aether #avPreview {
+      gap: .7rem;
+    }
+
+    #sec-aether #avPreview .aether-mini-card {
+      border-color: rgba(68, 194, 190, .22);
+      background:
+        linear-gradient(180deg, rgba(68, 194, 190, .035), transparent 75%),
+        rgba(255, 255, 255, .015);
+    }
+
+    .aether-mini-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(68, 194, 190, .32);
+      color: var(--teal-lt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: .5rem;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(68, 194, 190, .10), transparent 62%),
+        rgba(68, 194, 190, .035);
+    }
+
+    .aether-mini-badge svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+
+    .aether-mini-badge svg path,
+    .aether-mini-badge svg circle {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .aether-mini-badge.loss {
+      border-color: rgba(200, 164, 74, .38);
+      color: var(--gold-lt);
+      background:
+        radial-gradient(circle at 50% 50%, rgba(200, 164, 74, .11), transparent 62%),
+        rgba(200, 164, 74, .04);
+    }
+
     /* ─── PAYOUT CARDS ─────────────────────────────────────────────────────────── */
     .pay-list {
       display: flex;
@@ -2072,15 +2180,35 @@ stroke-width='6'/>
       if (netEl) netEl.value = net === null ? '—' : fmtPercent(net);
 
       previewEl.innerHTML = `
-    <div class="sum-item">
+    <div class="sum-item aether-mini-card">
+      <div class="aether-mini-badge">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 4h10M7 20h10M8 4c0 4 3 5 4 8-1 3-4 4-4 8M16 4c0 4-3 5-4 8 1 3 4 4 4 8M9 8h6M9 16h6" />
+        </svg>
+      </div>
       <div class="sum-n" style="color:var(--teal-lt)">${fmtHours(hours)}</div>
       <div class="sum-l">Teaching Hours</div>
     </div>
-    <div class="sum-item">
+
+    <div class="sum-item aether-mini-card">
+      <div class="aether-mini-badge loss">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 7l5 5 4-4 5 7" />
+          <path d="M15 15h4v-4" />
+        </svg>
+      </div>
       <div class="sum-n" style="color:${loss !== null && loss > 0 ? 'var(--gold-lt)' : 'var(--text-3)'}">${loss === null ? '—' : fmtMoney(loss)}</div>
       <div class="sum-l">Flow Loss</div>
     </div>
-    <div class="sum-item">
+
+    <div class="sum-item aether-mini-card">
+      <div class="aether-mini-badge">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="7" />
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+        </svg>
+      </div>
       <div class="sum-n" style="color:var(--teal-lt)">${fmtPercent(net)}</div>
       <div class="sum-l">Net Landing</div>
     </div>
@@ -2099,24 +2227,43 @@ stroke-width='6'/>
           : (m.pulse > 0 ? '+' : '') + Math.round(m.pulse) + '%';
 
         summaryEl.innerHTML = `
-      <div class="sum-item">
-        <div class="sum-n" style="color:var(--teal-lt)">${fmtMoney(m.fourWeekReceived)}</div>
-        <div class="sum-l">Four-Week Flow</div>
-        <div class="scard-sub">${fmtHours(m.fourWeekHours)}</div>
+    <div class="sum-item aether-summary-card">
+      <div class="aether-summary-badge">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 18h16" />
+          <path d="M6 18V9l6-4 6 4v9" />
+          <path d="M9 18v-6h6v6" />
+          <path d="M3 21h18" />
+        </svg>
       </div>
+      <div class="sum-n">${fmtMoney(m.fourWeekReceived)}</div>
+      <div class="sum-l">Four-Week Flow</div>
+      <div class="scard-sub">${fmtHours(m.fourWeekHours)}</div>
+    </div>
 
-      <div class="sum-item">
-        <div class="sum-n" style="color:var(--teal-lt)">${pulseText}</div>
-        <div class="sum-l">Aether Pulse</div>
-        <div class="scard-sub">${m.pulseLabel}</div>
+    <div class="sum-item aether-summary-card">
+      <div class="aether-summary-badge pulse">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 13h4l2-6 4 12 3-6h5" />
+        </svg>
       </div>
+      <div class="sum-n">${pulseText}</div>
+      <div class="sum-l">Aether Pulse</div>
+      <div class="scard-sub">${m.pulseLabel}</div>
+    </div>
 
-      <div class="sum-item">
-        <div class="sum-n" style="color:var(--teal-lt)">${fmtHours(m.lastHours)}</div>
-        <div class="sum-l">Teaching Hours</div>
-        <div class="scard-sub">Last tutoring flow</div>
+    <div class="sum-item aether-summary-card">
+      <div class="aether-summary-badge">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 6.5c2.5-1.2 4.8-1.2 7 0 2.2-1.2 4.5-1.2 7 0v12c-2.5-1.2-4.8-1.2-7 0-2.2-1.2-4.5-1.2-7 0z" />
+          <path d="M12 6.5v12" />
+        </svg>
       </div>
-    `;
+      <div class="sum-n">${fmtHours(m.lastHours)}</div>
+      <div class="sum-l">Teaching Hours</div>
+      <div class="scard-sub">Last tutoring flow</div>
+    </div>
+  `;
       }
 
       document.getElementById('listAether').innerHTML = items.length === 0
