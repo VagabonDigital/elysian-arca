@@ -1641,7 +1641,7 @@ stroke-width='6'/>
       <div class="stat-grid" id="statGrid"></div>
       <div class="sh">Last 30 Days</div>
       <div class="sum-row" id="sum30"></div>
-      <div class="sh">Aether Vitis — Last 4 Payouts</div>
+      <div class="sh">Aether Vitis — Last 4 Flows</div>
       <div id="last4"></div>
     </div>
 
@@ -1750,9 +1750,13 @@ stroke-width='6'/>
 
     <!-- ── AETHER VITIS ── -->
     <div class="sec" id="sec-aether">
+      <div class="sum-row" id="aetherSummary"></div>
+
       <div class="eb" id="ebAether">Editing entry — submit to update the ledger.</div>
+
       <div class="fcard">
-        <div class="ftitle t">Weekly Aether Vitis Payout</div>
+        <div class="ftitle t">Aether Vitis — Weekly Flow</div>
+
         <form id="fAether">
           <div class="fgrid">
             <div class="frow2">
@@ -1760,23 +1764,41 @@ stroke-width='6'/>
                 <label>Date</label>
                 <input type="date" id="av-date" required>
               </div>
+
               <div class="fgrp">
-                <label>Cambly Payout</label>
-                <input type="number" id="av-amt" min="0" step="0.01" placeholder="0.00" required>
+                <label>Cambly Merces</label>
+                <input type="number" id="av-merces" min="0" step="0.01" placeholder="0.00">
               </div>
             </div>
+
+            <div class="frow2">
+              <div class="fgrp">
+                <label>Account Received</label>
+                <input type="number" id="av-amt" min="0" step="0.01" placeholder="0.00" required>
+              </div>
+
+              <div class="fgrp">
+                <label>Net Landing</label>
+                <input type="text" id="av-net-preview" readonly placeholder="—">
+              </div>
+            </div>
+
             <div class="fgrp">
               <label>Note (optional)</label>
-              <textarea id="av-note" placeholder="Notes about this payout cycle…"></textarea>
+              <textarea id="av-note" placeholder="Notes about this weekly flow"></textarea>
             </div>
           </div>
+
+          <div class="sum-row" id="avPreview" style="margin-top:1rem;margin-bottom:0"></div>
+
           <div class="brow">
-            <button type="submit" class="btn btn-t">Record Payout</button>
+            <button type="submit" class="btn btn-t">Record Flow</button>
             <button type="button" class="btn btn-gh" onclick="cancelEdit('aether')">Cancel</button>
           </div>
         </form>
       </div>
-      <div class="sh">Payout History</div>
+
+      <div class="sh">Flow Ledger</div>
       <div class="elist" id="listAether"></div>
     </div>
 
@@ -2244,6 +2266,93 @@ stroke-width='6'/>
       const abs = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       return (v < 0 ? '−$' : '$') + abs;
     }
+    const CAMBLY_RATE_PER_MIN = 0.17;
+
+    function hasMerces(p) {
+      return p && p.camblyMerces !== undefined && p.camblyMerces !== null && p.camblyMerces !== '';
+    }
+
+    function getReceived(p) {
+      return +p.amount || 0;
+    }
+
+    function getMerces(p) {
+      return hasMerces(p) ? (+p.camblyMerces || 0) : null;
+    }
+
+    function teachingHoursFromMerces(n) {
+      const v = +n || 0;
+      return v > 0 ? v / CAMBLY_RATE_PER_MIN / 60 : 0;
+    }
+
+    function getTeachingHours(p) {
+      const merces = getMerces(p);
+      return merces === null ? null : teachingHoursFromMerces(merces);
+    }
+
+    function getFlowLoss(p) {
+      const merces = getMerces(p);
+      if (merces === null) return null;
+      return merces - getReceived(p);
+    }
+
+    function getNetLanding(p) {
+      const merces = getMerces(p);
+      if (!merces) return null;
+      return (getReceived(p) / merces) * 100;
+    }
+
+    function fmtHours(n) {
+      if (n === null || n === undefined || isNaN(n)) return '—';
+      return (Number(n) || 0).toFixed(1) + ' hrs';
+    }
+
+    function fmtPercent(n) {
+      if (n === null || n === undefined || isNaN(n)) return '—';
+      return Math.round(Number(n)) + '%';
+    }
+
+    function getAetherMetrics() {
+      const d = load();
+      const payouts = [...(d.payouts || [])].sort((a, b) => a.date.localeCompare(b.date));
+      const last = payouts[payouts.length - 1] || null;
+      const last4 = payouts.slice(-4);
+
+      const fourWeekReceived = last4.reduce((sum, p) => sum + getReceived(p), 0);
+      const fourWeekHours = last4.reduce((sum, p) => {
+        const hrs = getTeachingHours(p);
+        return sum + (hrs || 0);
+      }, 0);
+
+      const lastHours = last ? getTeachingHours(last) : null;
+
+      const previous4 = payouts.slice(-5, -1);
+      const previousAvg = previous4.length
+        ? previous4.reduce((sum, p) => sum + getReceived(p), 0) / previous4.length
+        : null;
+
+      let pulse = null;
+      if (last && previousAvg && previousAvg > 0) {
+        pulse = ((getReceived(last) - previousAvg) / previousAvg) * 100;
+      }
+
+      let pulseLabel = 'Awaiting rhythm';
+      if (pulse !== null) {
+        if (Math.abs(pulse) < 5) pulseLabel = 'Steady income rhythm';
+        else if (pulse > 0) pulseLabel = 'Above recent flow';
+        else pulseLabel = 'Below recent flow';
+      }
+
+      return {
+        last,
+        last4,
+        fourWeekReceived,
+        fourWeekHours,
+        lastHours,
+        pulse,
+        pulseLabel
+      };
+    }
     function daysAgo(n) { return ds(new Date(Date.now() - n * 86400000)); }
 
     /* ── ARCELLA BALANCE (combines both sources) ────────────────────────────────── */
@@ -2356,9 +2465,9 @@ stroke-width='6'/>
       <div class="scard-sub">Active runway</div>
     </div>
     <div class="scard t">
-      <div class="scard-lbl">Last Aether Vitis</div>
+      <div class="scard-lbl">Aether Vitis</div>
       <div class="scard-val">${fmtMoney(s.lastPayout)}</div>
-      <div class="scard-sub">Last Cambly payout</div>
+      <div class="scard-sub">Last tutoring flow</div>
     </div>
     <div class="scard s">
       <div class="scard-lbl">Sober Streak</div>
@@ -2375,7 +2484,7 @@ stroke-width='6'/>
       const net30Color = s.net30 >= 0 ? 'var(--silver-lt)' : 'var(--danger)';
       document.getElementById('sum30').innerHTML = `
     <div class="sum-item"><div class="sum-n" style="color:${net30Color}">${fmtMoney(s.net30)}</div><div class="sum-l">Arcella Net</div></div>
-    <div class="sum-item"><div class="sum-n" style="color:var(--teal-lt)">${fmtMoney(s.l4sum)}</div><div class="sum-l">Vitis (4 payouts)</div></div>
+    <div class="sum-item"><div class="sum-n" style="color:var(--teal-lt)">${fmtMoney(s.l4sum)}</div><div class="sum-l">Vitis Flow</div></div>
     <div class="sum-item"><div class="sum-n" style="color:var(--silver-lt)">${s.sober30}</div><div class="sum-l">Sober Days</div></div>
     <div class="sum-item"><div class="sum-n" style="color:var(--silver-lt)">${s.workouts30}</div><div class="sum-l">Workouts</div></div>
   `;
@@ -2579,25 +2688,111 @@ stroke-width='6'/>
     }
 
     /* ── RENDER AETHER ──────────────────────────────────────────────────────────── */
+    function renderAetherPreview() {
+      const mercesEl = document.getElementById('av-merces');
+      const amountEl = document.getElementById('av-amt');
+      const previewEl = document.getElementById('avPreview');
+      const netEl = document.getElementById('av-net-preview');
+
+      if (!mercesEl || !amountEl || !previewEl) return;
+
+      const merces = +mercesEl.value || 0;
+      const received = +amountEl.value || 0;
+
+      const hours = merces > 0 ? teachingHoursFromMerces(merces) : null;
+      const loss = merces > 0 ? merces - received : null;
+      const net = merces > 0 ? (received / merces) * 100 : null;
+
+      if (netEl) netEl.value = net === null ? '—' : fmtPercent(net);
+
+      previewEl.innerHTML = `
+    <div class="sum-item">
+      <div class="sum-n" style="color:var(--teal-lt)">${fmtHours(hours)}</div>
+      <div class="sum-l">Teaching Hours</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-n" style="color:${loss !== null && loss > 0 ? 'var(--gold-lt)' : 'var(--text-3)'}">${loss === null ? '—' : fmtMoney(loss)}</div>
+      <div class="sum-l">Flow Loss</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-n" style="color:var(--teal-lt)">${fmtPercent(net)}</div>
+      <div class="sum-l">Net Landing</div>
+    </div>
+  `;
+    }
+
     function renderAether() {
       const d = load();
-      const items = [...d.payouts].sort((a, b) => b.date.localeCompare(a.date));
+      const items = [...(d.payouts || [])].sort((a, b) => b.date.localeCompare(a.date));
+      const m = getAetherMetrics();
+
+      const summaryEl = document.getElementById('aetherSummary');
+      if (summaryEl) {
+        const pulseText = m.pulse === null
+          ? '—'
+          : (m.pulse > 0 ? '+' : '') + Math.round(m.pulse) + '%';
+
+        summaryEl.innerHTML = `
+      <div class="sum-item">
+        <div class="sum-n" style="color:var(--teal-lt)">${fmtMoney(m.fourWeekReceived)}</div>
+        <div class="sum-l">Four-Week Flow</div>
+        <div class="scard-sub">${fmtHours(m.fourWeekHours)}</div>
+      </div>
+
+      <div class="sum-item">
+        <div class="sum-n" style="color:var(--teal-lt)">${pulseText}</div>
+        <div class="sum-l">Aether Pulse</div>
+        <div class="scard-sub">${m.pulseLabel}</div>
+      </div>
+
+      <div class="sum-item">
+        <div class="sum-n" style="color:var(--teal-lt)">${fmtHours(m.lastHours)}</div>
+        <div class="sum-l">Teaching Hours</div>
+        <div class="scard-sub">Last tutoring flow</div>
+      </div>
+    `;
+      }
+
       document.getElementById('listAether').innerHTML = items.length === 0
-        ? '<div class="empty">No payout entries yet.</div>'
+        ? '<div class="empty">No flow entries yet. Record your first Aether Vitis weekly flow.</div>'
         : items.map(e => {
-          const notePart = e.note ? `<br><span style="opacity:.55;font-size:.78rem">${esc(e.note)}</span>` : '';
+          const merces = getMerces(e);
+          const hours = getTeachingHours(e);
+          const loss = getFlowLoss(e);
+          const net = getNetLanding(e);
+
+          const details = hasMerces(e)
+            ? `
+          <br><span style="opacity:.75">Cambly Merces: <span style="font-family:var(--ff-mono);color:var(--text-2)">${fmtMoney(merces)}</span></span>
+          <br><span style="opacity:.75">Teaching Time: <span style="font-family:var(--ff-mono);color:var(--text-2)">${fmtHours(hours)}</span></span>
+          <br><span style="opacity:.75">Flow Loss: <span style="font-family:var(--ff-mono);color:${loss > 0 ? 'var(--gold-lt)' : 'var(--text-2)'}">${fmtMoney(loss)}</span></span>
+          <br><span style="opacity:.75">Net Landing: <span style="font-family:var(--ff-mono);color:var(--teal-lt)">${fmtPercent(net)}</span></span>
+        `
+            : `<br><span style="opacity:.45;font-size:.78rem">Legacy entry — merces not recorded.</span>`;
+
+          const notePart = e.note
+            ? `<br><span style="opacity:.55;font-size:.8rem">${esc(e.note)}</span>`
+            : '';
+
           return `<div class="eitem">
-          <div class="emain">
-            <div class="etype t">Aether Vitis</div>
-            <div class="edate">${fmtDate(e.date)}</div>
-            <div class="ebody"><span style="color:var(--teal-lt);font-family:var(--ff-mono);font-size:1.05rem">${fmtMoney(e.amount)}</span>${notePart}</div>
+        <div class="emain">
+          <div class="etype t">Aether Vitis</div>
+          <div class="edate">${fmtDate(e.date)}</div>
+          <div class="ebody">
+            <span style="color:var(--teal-lt);font-family:var(--ff-mono);font-size:1.1rem">${fmtMoney(e.amount)}</span>
+            <span style="color:var(--text-2)"> received</span>
+            ${details}
+            ${notePart}
           </div>
-          <div class="eacts">
-            <button class="ebtn ebtn-e" onclick="editE('aether','${e.id}')">Edit</button>
-            <button class="ebtn ebtn-d" onclick="delE('payouts','${e.id}')">Del</button>
-          </div>
-        </div>`;
+        </div>
+        <div class="eacts">
+          <button class="ebtn ebtn-e" onclick="editE('aether','${e.id}')">Edit</button>
+          <button class="ebtn ebtn-d" onclick="delE('payouts','${e.id}')">Delete</button>
+        </div>
+      </div>`;
         }).join('');
+
+      renderAetherPreview();
     }
 
     /* ── RENDER RITUAL ──────────────────────────────────────────────────────────── */
@@ -2703,19 +2898,38 @@ stroke-width='6'/>
           </div>`;
           }
           if (e._t === 'aether') {
-            const np = e.note ? `<br><span style="opacity:.5;font-size:.78rem">${esc(e.note)}</span>` : '';
+            const merces = getMerces(e);
+            const hours = getTeachingHours(e);
+            const loss = getFlowLoss(e);
+
+            const detailPart = hasMerces(e)
+              ? `<br><span style="opacity:.55;font-size:.78rem">
+        Merces: ${fmtMoney(merces)} · ${fmtHours(hours)} · Loss: ${fmtMoney(loss)}
+      </span>`
+              : '';
+
+            const np = e.note
+              ? `<br><span style="opacity:.5;font-size:.78rem">${esc(e.note)}</span>`
+              : '';
+
             return `<div class="eitem">
-            <div class="emain">
-              <div class="etype t">Aether Vitis</div>
-              <div class="edate">${fmtDate(e.date)}</div>
-              <div class="ebody"><span style="color:var(--teal-lt);font-family:var(--ff-mono)">${fmtMoney(e.amount)}</span>${np}</div>
-            </div>
-            <div class="eacts">
-              <button class="ebtn ebtn-e" onclick="editE('aether','${e.id}')">Edit</button>
-              <button class="ebtn ebtn-d" onclick="delE('payouts','${e.id}')">Del</button>
-            </div>
-          </div>`;
+              <div class="emain">
+                <div class="etype t">Aether Vitis</div>
+                <div class="edate">${fmtDate(e.date)}</div>
+                <div class="ebody">
+                  <span style="color:var(--teal-lt);font-family:var(--ff-mono)">${fmtMoney(e.amount)}</span>
+                  <span style="color:var(--text-2)"> received</span>
+                  ${detailPart}
+                  ${np}
+                </div>
+              </div>
+              <div class="eacts">
+                <button class="ebtn ebtn-e" onclick="editE('aether','${e.id}')">Edit</button>
+                <button class="ebtn ebtn-d" onclick="delE('payouts','${e.id}')">Del</button>
+              </div>
+            </div>`;
           }
+
           if (e._t === 'ritual') {
             const np = e.note ? `<br><span style="opacity:.5;font-size:.78rem">${esc(e.note)}</span>` : '';
             return `<div class="eitem">
@@ -2914,22 +3128,28 @@ stroke-width='6'/>
     /* ── AETHER FORM ────────────────────────────────────────────────────────────── */
     document.getElementById('fAether').addEventListener('submit', e => {
       e.preventDefault();
+
       const d = load();
       const id = editing.aether || uid();
+
       const entry = {
         id,
         date: document.getElementById('av-date').value,
         amount: document.getElementById('av-amt').value,
+        camblyMerces: document.getElementById('av-merces').value,
         note: document.getElementById('av-note').value.trim()
       };
+
       if (editing.aether) {
         const i = d.payouts.findIndex(p => p.id === id);
-        if (i >= 0) d.payouts[i] = entry; else d.payouts.push(entry);
+        if (i >= 0) d.payouts[i] = entry;
+        else d.payouts.push(entry);
       } else {
         d.payouts.push(entry);
       }
+
       save(d);
-      toast(editing.aether ? 'Payout updated.' : 'Payout recorded. Aether Vitis flows.');
+      toast(editing.aether ? 'Flow updated.' : 'Flow recorded. Aether Vitis moves.');
       cancelEdit('aether');
       renderAll();
     });
@@ -2987,9 +3207,11 @@ stroke-width='6'/>
         const e = d.payouts.find(p => p.id === id); if (!e) return;
         editing.aether = id;
         document.getElementById('av-date').value = e.date;
+        document.getElementById('av-merces').value = e.camblyMerces || '';
         document.getElementById('av-amt').value = e.amount;
         document.getElementById('av-note').value = e.note || '';
         document.getElementById('ebAether').classList.add('on');
+        renderAetherPreview();
         goTab('aether');
       } else if (type === 'ritual') {
         const e = d.arcaRituals.find(r => r.id === id); if (!e) return;
@@ -3016,6 +3238,7 @@ stroke-width='6'/>
         document.getElementById('fAether').reset();
         document.getElementById('ebAether').classList.remove('on');
         document.getElementById('av-date').value = today();
+        renderAetherPreview();
       } else if (type === 'ritual') {
         document.getElementById('fRitual').reset();
         document.getElementById('ebRitual').classList.remove('on');
@@ -3106,6 +3329,15 @@ stroke-width='6'/>
 
       document.getElementById('di-date').value = today();
       document.getElementById('av-date').value = today();
+
+      const avMerces = document.getElementById('av-merces');
+      const avAmt = document.getElementById('av-amt');
+
+      if (avMerces) avMerces.addEventListener('input', renderAetherPreview);
+      if (avAmt) avAmt.addEventListener('input', renderAetherPreview);
+
+      renderAetherPreview();
+
       document.getElementById('eq-date').value = today();
 
       const rituals = [...load().arcaRituals].sort((a, b) => a.maturityDate.localeCompare(b.maturityDate));
