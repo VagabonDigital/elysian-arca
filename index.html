@@ -1732,6 +1732,7 @@ stroke-width='6'/>
     const GIST_ID = '33b11a4a6e557cebdf47386735632b2c';
     const GIST_FILE = 'elysian-arca-data.json';
     const TOKEN_KEY = 'elysian_arca_sync_token';
+    const LAST_CLOUD_SEEN_KEY = 'elysian_arca_last_cloud_seen';
     const MSGS = [
       '"Continuity over chaos."',
       '"The civilization survived another day."',
@@ -1747,6 +1748,14 @@ stroke-width='6'/>
 
     function getGithubToken() {
       return localStorage.getItem(TOKEN_KEY) || '';
+    }
+
+    function getLastCloudSeen() {
+      return localStorage.getItem(LAST_CLOUD_SEEN_KEY) || '1970-01-01T00:00:00.000Z';
+    }
+
+    function setLastCloudSeen(value) {
+      if (value) localStorage.setItem(LAST_CLOUD_SEEN_KEY, value);
     }
 
     function saveSyncKey() {
@@ -1888,7 +1897,7 @@ stroke-width='6'/>
       cloudSyncTimer = setTimeout(syncUpToCloud, 900);
     }
 
-    async function fetchCloudData() {
+    async function fetchCloudDataWithoutMarkingSeen() {
       const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
         headers: cloudHeaders()
       });
@@ -1903,6 +1912,40 @@ stroke-width='6'/>
       return normaliseData(JSON.parse(file.content));
     }
 
+    async function fetchCloudData() {
+      const cloud = await fetchCloudDataWithoutMarkingSeen();
+      setLastCloudSeen(cloud.updatedAt);
+      return cloud;
+    }
+
+    async function cloudHasUnseenChanges() {
+      const cloud = await fetchCloudDataWithoutMarkingSeen();
+      const cloudTime = cloud.updatedAt || '1970-01-01T00:00:00.000Z';
+      const lastSeen = getLastCloudSeen();
+
+      return cloudTime > lastSeen;
+    }
+
+    async function canWriteSafely() {
+      try {
+        const cloud = await fetchCloudDataWithoutMarkingSeen();
+        const cloudTime = cloud.updatedAt || '1970-01-01T00:00:00.000Z';
+        const lastSeen = getLastCloudSeen();
+
+        if (cloudTime > lastSeen) {
+          toast('Cloud changed elsewhere. Evoca first.');
+          console.warn('Write blocked. Cloud has unseen changes.');
+          return false;
+        }
+
+        return true;
+      } catch (err) {
+        console.error(err);
+        toast('Could not verify cloud. Evoca first.');
+        return false;
+      }
+    }
+
     async function syncDownFromCloud({ silent = false } = {}) {
       try {
         const cloud = await fetchCloudData();
@@ -1913,10 +1956,12 @@ stroke-width='6'/>
 
         if (cloudTime > localTime) {
           saveLocalOnly(cloud);
+          setLastCloudSeen(cloudTime);
           renderAll();
           if (!silent) toast('Cloud ledger restored.');
-        } else if (!silent) {
-          toast('Local ledger already current.');
+        } else {
+          setLastCloudSeen(cloudTime);
+          if (!silent) toast('Local ledger already current.');
         }
       } catch (err) {
         console.error(err);
@@ -1929,6 +1974,14 @@ stroke-width='6'/>
       cloudSyncBusy = true;
 
       try {
+        const unseenChanges = await cloudHasUnseenChanges();
+
+        if (unseenChanges) {
+          toast('Cloud changed elsewhere. Evoca first.');
+          console.warn('Cloud ledger has unseen changes. Pull before pushing.');
+          return;
+        }
+
         const local = load();
 
         const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
@@ -1944,6 +1997,8 @@ stroke-width='6'/>
         });
 
         if (!res.ok) throw new Error(`Cloud save failed: ${res.status}`);
+
+        setLastCloudSeen(local.updatedAt);
 
         console.log('Elysian Arca cloud sync complete.');
         toast('Cloud ledger sealed.');
@@ -2715,8 +2770,11 @@ stroke-width='6'/>
     document.getElementById('di-amt').addEventListener('input', updateArcellaPreview);
     document.getElementById('di-tx').addEventListener('change', updateArcellaPreview);
 
-    document.getElementById('fDaily').addEventListener('submit', e => {
+    document.getElementById('fDaily').addEventListener('submit', async e => {
       e.preventDefault();
+
+      if (!(await canWriteSafely())) return;
+
       const d = load();
       const id = editing.daily || uid();
       const entry = {
@@ -2741,8 +2799,10 @@ stroke-width='6'/>
     });
 
     /* ── FORM: AETHER ──────────────────────────────────────────────────────────── */
-    document.getElementById('fAether').addEventListener('submit', e => {
+    document.getElementById('fAether').addEventListener('submit', async e => {
       e.preventDefault();
+
+      if (!(await canWriteSafely())) return;
 
       const d = load();
       const id = editing.aether || uid();
@@ -2779,8 +2839,11 @@ stroke-width='6'/>
     document.getElementById('ar-prev').addEventListener('input', calcRitualTotal);
     document.getElementById('ar-add').addEventListener('input', calcRitualTotal);
 
-    document.getElementById('fRitual').addEventListener('submit', e => {
+    document.getElementById('fRitual').addEventListener('submit', async e => {
       e.preventDefault();
+
+      if (!(await canWriteSafely())) return;
+
       const d = load();
       const id = editing.ritual || uid();
       const entry = {
@@ -2871,8 +2934,11 @@ stroke-width='6'/>
     }
 
     /* ── DELETE ────────────────────────────────────────────────────────────────── */
-    function delE(coll, id) {
+    async function delE(coll, id) {
       if (!confirm('Remove this entry from the treasury ledger?\nThis cannot be undone.')) return;
+
+      if (!(await canWriteSafely())) return;
+
       const d = load();
       d[coll] = d[coll].filter(e => e.id !== id);
       save(d);
@@ -2880,8 +2946,10 @@ stroke-width='6'/>
       toast('Entry removed from ledger.');
     }
 
-    function delArcellaMovement(id) {
+    async function delArcellaMovement(id) {
       if (!confirm('Remove this Arcella movement from the treasury ledger?\nThis cannot be undone.')) return;
+
+      if (!(await canWriteSafely())) return;
 
       const d = load();
       d.arcellaMovements = (d.arcellaMovements || []).filter(e => e.id !== id);
@@ -2891,11 +2959,13 @@ stroke-width='6'/>
       toast('Arcella movement removed.');
     }
 
-    function editArcellaMovement(id) {
+    async function editArcellaMovement(id) {
       const d = load();
       const e = (d.arcellaMovements || []).find(m => m.id === id);
 
       if (!e) return;
+
+      if (!(await canWriteSafely())) return;
 
       const type = prompt('Type: deposit or withdrawal', e.type || 'withdrawal');
       if (type === null) return;

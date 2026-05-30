@@ -1290,73 +1290,79 @@ stroke-width='6'/>
     }
 
     /* ─── DAILY CONTINUITY PULSE ─────────────────────────────────────────────── */
-.daily-pulse {
-  display: flex;
-  align-items: center;
-  gap: .55rem;
-  margin: -.25rem 0 1rem;
-  color: var(--text-2);
-  font-size: .78rem;
-  line-height: 1.45;
-}
+    .daily-pulse {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      margin: -.25rem 0 1rem;
+      color: var(--text-2);
+      font-size: .78rem;
+      line-height: 1.45;
+    }
 
-.daily-pulse-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background: var(--gold-lt);
-  box-shadow: 0 0 0 0 rgba(200, 164, 74, .22);
-  animation: dailyPulseGold 2.4s ease-in-out infinite;
-}
+    .daily-pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--gold-lt);
+      box-shadow: 0 0 0 0 rgba(200, 164, 74, .22);
+      animation: dailyPulseGold 2.4s ease-in-out infinite;
+    }
 
-.daily-pulse.sealed .daily-pulse-dot {
-  background: var(--success);
-  box-shadow: 0 0 0 0 rgba(78, 138, 104, .22);
-  animation-name: dailyPulseGreen;
-}
+    .daily-pulse.sealed .daily-pulse-dot {
+      background: var(--success);
+      box-shadow: 0 0 0 0 rgba(78, 138, 104, .22);
+      animation-name: dailyPulseGreen;
+    }
 
-.daily-pulse.pending .daily-pulse-dot {
-  background: var(--gold-lt);
-  box-shadow: 0 0 0 0 rgba(200, 164, 74, .22);
-  animation-name: dailyPulseGold;
-}
+    .daily-pulse.pending .daily-pulse-dot {
+      background: var(--gold-lt);
+      box-shadow: 0 0 0 0 rgba(200, 164, 74, .22);
+      animation-name: dailyPulseGold;
+    }
 
-.daily-pulse.gap .daily-pulse-dot {
-  background: var(--danger);
-  box-shadow: 0 0 0 0 rgba(176, 96, 64, .24);
-  animation-name: dailyPulseRed;
-}
+    .daily-pulse.gap .daily-pulse-dot {
+      background: var(--danger);
+      box-shadow: 0 0 0 0 rgba(176, 96, 64, .24);
+      animation-name: dailyPulseRed;
+    }
 
-@keyframes dailyPulseGreen {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(78, 138, 104, .20);
-  }
+    @keyframes dailyPulseGreen {
 
-  50% {
-    box-shadow: 0 0 0 5px rgba(78, 138, 104, .04);
-  }
-}
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(78, 138, 104, .20);
+      }
 
-@keyframes dailyPulseGold {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(200, 164, 74, .22);
-  }
+      50% {
+        box-shadow: 0 0 0 5px rgba(78, 138, 104, .04);
+      }
+    }
 
-  50% {
-    box-shadow: 0 0 0 5px rgba(200, 164, 74, .045);
-  }
-}
+    @keyframes dailyPulseGold {
 
-@keyframes dailyPulseRed {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(176, 96, 64, .24);
-  }
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(200, 164, 74, .22);
+      }
 
-  50% {
-    box-shadow: 0 0 0 5px rgba(176, 96, 64, .05);
-  }
-}
+      50% {
+        box-shadow: 0 0 0 5px rgba(200, 164, 74, .045);
+      }
+    }
+
+    @keyframes dailyPulseRed {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(176, 96, 64, .24);
+      }
+
+      50% {
+        box-shadow: 0 0 0 5px rgba(176, 96, 64, .05);
+      }
+    }
 
     /* ─── CHRONICLE FILTERS ─────────────────────────────────────────────────── */
     .chron-filter-row {
@@ -2234,6 +2240,7 @@ stroke-width='6'/>
     const GIST_ID = '33b11a4a6e557cebdf47386735632b2c';
     const GIST_FILE = 'elysian-arca-data.json';
     const TOKEN_KEY = 'elysian_arca_sync_token';
+    const LAST_CLOUD_SEEN_KEY = 'elysian_arca_last_cloud_seen';
     const MSGS = [
       '"Continuity over chaos."',
       '"The civilization survived another day."',
@@ -2251,6 +2258,14 @@ stroke-width='6'/>
 
     function getGithubToken() {
       return localStorage.getItem(TOKEN_KEY) || '';
+    }
+
+    function getLastCloudSeen() {
+      return localStorage.getItem(LAST_CLOUD_SEEN_KEY) || '1970-01-01T00:00:00.000Z';
+    }
+
+    function setLastCloudSeen(value) {
+      if (value) localStorage.setItem(LAST_CLOUD_SEEN_KEY, value);
     }
 
     function saveSyncKey() {
@@ -2331,33 +2346,43 @@ stroke-width='6'/>
 
 
     /* ── DATA + CLOUD SYNC ─────────────────────────────────────────────────────── */
-    function load() {
-      try {
-        const r = localStorage.getItem(KEY);
-        const d = r ? JSON.parse(r) : {};
-        // Ensure all collections exist (backward-compatible)
-        if (!d.checkIns) d.checkIns = [];
-        if (!d.payouts) d.payouts = [];
-        if (!d.arcaRituals) d.arcaRituals = [];
-        if (!d.arcellaMovements) d.arcellaMovements = [];
-        return d;
-      } catch {
-        return { checkIns: [], payouts: [], arcaRituals: [], arcellaMovements: [] };
-      }
-    }
-    function save(d) {
+    function normaliseData(d) {
+      if (!d || typeof d !== 'object') d = {};
       if (!d.checkIns) d.checkIns = [];
       if (!d.payouts) d.payouts = [];
       if (!d.arcaRituals) d.arcaRituals = [];
       if (!d.arcellaMovements) d.arcellaMovements = [];
+      if (!d.updatedAt) d.updatedAt = '1970-01-01T00:00:00.000Z';
+      if (!d.syncVersion) d.syncVersion = 1;
+      return d;
+    }
 
+    function load() {
+      try {
+        const r = localStorage.getItem(KEY);
+        return normaliseData(r ? JSON.parse(r) : {});
+      } catch {
+        return normaliseData({});
+      }
+    }
+
+    function save(d) {
+      d = normaliseData(d);
       d.updatedAt = new Date().toISOString();
       d.syncVersion = 1;
 
       localStorage.setItem(KEY, JSON.stringify(d));
       queueCloudSync();
     }
-    function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 10); }
+
+    function saveLocalOnly(d) {
+      d = normaliseData(d);
+      localStorage.setItem(KEY, JSON.stringify(d));
+    }
+
+    function uid() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    }
     let cloudSyncTimer = null;
     let cloudSyncBusy = false;
 
@@ -2380,7 +2405,7 @@ stroke-width='6'/>
       cloudSyncTimer = setTimeout(syncUpToCloud, 900);
     }
 
-    async function fetchCloudData() {
+    async function fetchCloudDataWithoutMarkingSeen() {
       const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
         headers: cloudHeaders()
       });
@@ -2392,7 +2417,41 @@ stroke-width='6'/>
 
       if (!file || !file.content) throw new Error('Cloud ledger file not found.');
 
-      return JSON.parse(file.content);
+      return normaliseData(JSON.parse(file.content));
+    }
+
+    async function fetchCloudData() {
+      const cloud = await fetchCloudDataWithoutMarkingSeen();
+      setLastCloudSeen(cloud.updatedAt);
+      return cloud;
+    }
+
+    async function cloudHasUnseenChanges() {
+      const cloud = await fetchCloudDataWithoutMarkingSeen();
+      const cloudTime = cloud.updatedAt || '1970-01-01T00:00:00.000Z';
+      const lastSeen = getLastCloudSeen();
+
+      return cloudTime > lastSeen;
+    }
+
+    async function canWriteSafely() {
+      try {
+        const cloud = await fetchCloudDataWithoutMarkingSeen();
+        const cloudTime = cloud.updatedAt || '1970-01-01T00:00:00.000Z';
+        const lastSeen = getLastCloudSeen();
+
+        if (cloudTime > lastSeen) {
+          toast('Cloud changed elsewhere. Evoca first.');
+          console.warn('Write blocked. Cloud has unseen changes.');
+          return false;
+        }
+
+        return true;
+      } catch (err) {
+        console.error(err);
+        toast('Could not verify cloud. Evoca first.');
+        return false;
+      }
     }
 
     function saveLocalOnly(d) {
@@ -2408,18 +2467,24 @@ stroke-width='6'/>
 
     async function syncDownFromCloud({ silent = false } = {}) {
       try {
-        const cloud = await fetchCloudData();
+        const cloud = await fetchCloudDataWithoutMarkingSeen();
         const local = load();
 
         const cloudTime = cloud.updatedAt || '1970-01-01T00:00:00.000Z';
         const localTime = local.updatedAt || '1970-01-01T00:00:00.000Z';
+        const lastSeen = getLastCloudSeen();
 
-        if (cloudTime > localTime) {
+        const cloudChangedSinceSeen = cloudTime > lastSeen;
+        const cloudNewerThanLocal = cloudTime > localTime;
+
+        if (cloudChangedSinceSeen || cloudNewerThanLocal) {
           saveLocalOnly(cloud);
+          setLastCloudSeen(cloudTime);
           renderAll();
           if (!silent) toast('Cloud ledger restored.');
-        } else if (!silent) {
-          toast('Local ledger already current.');
+        } else {
+          setLastCloudSeen(cloudTime);
+          if (!silent) toast('Local ledger already current.');
         }
       } catch (err) {
         console.error(err);
@@ -2432,6 +2497,14 @@ stroke-width='6'/>
       cloudSyncBusy = true;
 
       try {
+        const unseenChanges = await cloudHasUnseenChanges();
+
+        if (unseenChanges) {
+          toast('Cloud changed elsewhere. Evoca first.');
+          console.warn('Cloud ledger has unseen changes. Pull before pushing.');
+          return;
+        }
+
         const local = load();
 
         const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
@@ -2447,6 +2520,8 @@ stroke-width='6'/>
         });
 
         if (!res.ok) throw new Error(`Cloud save failed: ${res.status}`);
+
+        setLastCloudSeen(local.updatedAt);
 
         console.log('Elysian Arca cloud sync complete.');
         toast('Cloud ledger sealed.');
@@ -2578,60 +2653,60 @@ stroke-width='6'/>
 
     const DAILY_CONTINUITY_START = '2026-05-24';
 
-function recentMissingDailyDates() {
-  const d = load();
-  const entries = new Set((d.checkIns || []).map(e => e.date));
-  const missing = [];
+    function recentMissingDailyDates() {
+      const d = load();
+      const entries = new Set((d.checkIns || []).map(e => e.date));
+      const missing = [];
 
-  const start = new Date(DAILY_CONTINUITY_START + 'T12:00:00');
-  const yesterday = new Date(today() + 'T12:00:00');
-  yesterday.setDate(yesterday.getDate() - 1);
+      const start = new Date(DAILY_CONTINUITY_START + 'T12:00:00');
+      const yesterday = new Date(today() + 'T12:00:00');
+      yesterday.setDate(yesterday.getDate() - 1);
 
-  for (
-    let cursor = new Date(start);
-    cursor <= yesterday;
-    cursor.setDate(cursor.getDate() + 1)
-  ) {
-    const date = ds(cursor);
-    if (!entries.has(date)) missing.push(date);
-  }
+      for (
+        let cursor = new Date(start);
+        cursor <= yesterday;
+        cursor.setDate(cursor.getDate() + 1)
+      ) {
+        const date = ds(cursor);
+        if (!entries.has(date)) missing.push(date);
+      }
 
-  return missing;
-}
+      return missing;
+    }
 
-function renderDailyContinuity() {
-  const el = document.getElementById('dailyContinuity');
-  if (!el) return;
+    function renderDailyContinuity() {
+      const el = document.getElementById('dailyContinuity');
+      if (!el) return;
 
-  const d = load();
-  const todayDate = today();
-  const todayDone = (d.checkIns || []).some(e => e.date === todayDate);
-  const missing = recentMissingDailyDates();
+      const d = load();
+      const todayDate = today();
+      const todayDone = (d.checkIns || []).some(e => e.date === todayDate);
+      const missing = recentMissingDailyDates();
 
-  el.classList.remove('sealed', 'pending', 'gap');
+      el.classList.remove('sealed', 'pending', 'gap');
 
-  let message = '';
+      let message = '';
 
-  if (missing.length > 0) {
-    el.classList.add('gap');
-    const word = missing.length === 1 ? 'day' : 'days';
+      if (missing.length > 0) {
+        el.classList.add('gap');
+        const word = missing.length === 1 ? 'day' : 'days';
 
-    message = todayDone
-      ? `Today is sealed · ${missing.length} ${word} still missing from the chain`
-      : `Today is waiting · ${missing.length} ${word} missing from the chain`;
-  } else if (todayDone) {
-    el.classList.add('sealed');
-    message = 'Today is sealed';
-  } else {
-    el.classList.add('pending');
-    message = 'Today is waiting';
-  }
+        message = todayDone
+          ? `Today is sealed · ${missing.length} ${word} still missing from the chain`
+          : `Today is waiting · ${missing.length} ${word} missing from the chain`;
+      } else if (todayDone) {
+        el.classList.add('sealed');
+        message = 'Today is sealed';
+      } else {
+        el.classList.add('pending');
+        message = 'Today is waiting';
+      }
 
-  el.innerHTML = `
+      el.innerHTML = `
     <span class="daily-pulse-dot"></span>
     <span class="daily-pulse-text">${message}</span>
   `;
-}
+    }
 
     /* ── ARCELLA BALANCE (combines both sources) ────────────────────────────────── */
     function calcArcellaBalance(excludeCheckInId) {
@@ -2859,7 +2934,9 @@ function renderDailyContinuity() {
       document.getElementById('qa-preview').value = fmtMoney(projected);
     }
 
-    function saveQuickArcella() {
+    async function saveQuickArcella() {
+      if (!(await canWriteSafely())) return;
+
       const amt = +document.getElementById('qa-amt').value || 0;
       if (amt <= 0) { toast('Enter an amount.'); return; }
 
@@ -2903,12 +2980,17 @@ function renderDailyContinuity() {
       document.getElementById('editQModal').classList.remove('on');
     }
 
-    function saveEditQModal() {
+    async function saveEditQModal() {
       if (!editingQId) return;
+
+      if (!(await canWriteSafely())) return;
+
       const amt = +document.getElementById('eq-amt').value || 0;
       if (amt <= 0) { toast('Enter an amount.'); return; }
+
       const d = load();
       const i = d.arcellaMovements.findIndex(x => x.id === editingQId);
+
       if (i >= 0) {
         d.arcellaMovements[i] = {
           ...d.arcellaMovements[i],
@@ -2917,15 +2999,20 @@ function renderDailyContinuity() {
           date: document.getElementById('eq-date').value,
           note: document.getElementById('eq-note').value.trim()
         };
+
         save(d);
       }
+
       closeEditQModal();
       renderAll();
       toast('Movement updated.');
     }
 
-    function delQuick(id) {
+    async function delQuick(id) {
       if (!confirm('Remove this Arcella movement?\nThis cannot be undone.')) return;
+
+      if (!(await canWriteSafely())) return;
+
       const d = load();
       d.arcellaMovements = d.arcellaMovements.filter(m => m.id !== id);
       save(d);
@@ -3419,8 +3506,11 @@ function renderDailyContinuity() {
     document.getElementById('di-amt').addEventListener('input', updateArcellaPreview);
     document.getElementById('di-tx').addEventListener('change', updateArcellaPreview);
 
-    document.getElementById('fDaily').addEventListener('submit', e => {
+    document.getElementById('fDaily').addEventListener('submit', async e => {
       e.preventDefault();
+
+      if (!(await canWriteSafely())) return;
+
       const d = load();
       const id = editing.daily || uid();
       const entry = {
@@ -3445,8 +3535,10 @@ function renderDailyContinuity() {
     });
 
     /* ── AETHER FORM ────────────────────────────────────────────────────────────── */
-    document.getElementById('fAether').addEventListener('submit', e => {
+    document.getElementById('fAether').addEventListener('submit', async e => {
       e.preventDefault();
+
+      if (!(await canWriteSafely())) return;
 
       const d = load();
       const id = editing.aether || uid();
@@ -3482,8 +3574,11 @@ function renderDailyContinuity() {
     document.getElementById('ar-prev').addEventListener('input', calcRitualTotal);
     document.getElementById('ar-add').addEventListener('input', calcRitualTotal);
 
-    document.getElementById('fRitual').addEventListener('submit', e => {
+    document.getElementById('fRitual').addEventListener('submit', async e => {
       e.preventDefault();
+
+      if (!(await canWriteSafely())) return;
+
       const d = load();
       const id = editing.ritual || uid();
       const entry = {
@@ -3571,8 +3666,11 @@ function renderDailyContinuity() {
     }
 
     /* ── DELETE ─────────────────────────────────────────────────────────────────── */
-    function delE(coll, id) {
+    async function delE(coll, id) {
       if (!confirm('Remove this entry from the treasury ledger?\nThis cannot be undone.')) return;
+
+      if (!(await canWriteSafely())) return;
+
       const d = load();
       d[coll] = d[coll].filter(e => e.id !== id);
       save(d);
