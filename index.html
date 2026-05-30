@@ -953,6 +953,35 @@ stroke-width='6'/>
       background: rgba(176, 96, 64, .08);
     }
 
+    /* ─── CHRONICLE FILTERS ─────────────────────────────────────────────────── */
+    .chron-filter-row {
+      display: flex;
+      gap: .45rem;
+      flex-wrap: wrap;
+      margin: 0 0 1rem;
+    }
+
+    .chron-filter {
+      padding: .42rem .75rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, .025);
+      color: var(--text-3);
+      font-family: var(--ff-sans);
+      font-size: .62rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color .2s, background .2s, color .2s;
+    }
+
+    .chron-filter:hover,
+    .chron-filter.on {
+      border-color: rgba(200, 164, 74, .45);
+      background: rgba(200, 164, 74, .10);
+      color: var(--gold-lt);
+    }
+
     /* ─── TIMELINE ─────────────────────────────────────────────────────────────── */
     .tl {
       display: flex;
@@ -1417,6 +1446,15 @@ stroke-width='6'/>
     <!-- ── CHRONICLE ── -->
     <div class="sec" id="sec-chronicle">
       <div class="sh" style="margin-top:0">Full Chronicle</div>
+
+      <div class="chron-filter-row">
+        <button class="chron-filter on" data-filter="all" onclick="setChronicleFilter('all')">All</button>
+        <button class="chron-filter" data-filter="daily" onclick="setChronicleFilter('daily')">Daily</button>
+        <button class="chron-filter" data-filter="arcella" onclick="setChronicleFilter('arcella')">Arcella</button>
+        <button class="chron-filter" data-filter="aether" onclick="setChronicleFilter('aether')">Aether</button>
+        <button class="chron-filter" data-filter="ritual" onclick="setChronicleFilter('ritual')">Rituals</button>
+      </div>
+
       <div class="elist" id="listChronicle"></div>
     </div>
 
@@ -1496,6 +1534,7 @@ stroke-width='6'/>
 
     /* ── STATE ─────────────────────────────────────────────────────────────────── */
     const editing = { daily: null, aether: null, ritual: null };
+    let chronicleFilter = 'all';
 
     function getGithubToken() {
       return localStorage.getItem(TOKEN_KEY) || '';
@@ -1976,6 +2015,16 @@ stroke-width='6'/>
       }).join('') + '</div>';
     }
 
+    function setChronicleFilter(type) {
+      chronicleFilter = type;
+
+      document.querySelectorAll('.chron-filter').forEach(btn => {
+        btn.classList.toggle('on', btn.dataset.filter === type);
+      });
+
+      renderChronicle();
+    }
+
     /* ── RENDER CHRONICLE ──────────────────────────────────────────────────────── */
     function renderChronicle() {
       const d = load();
@@ -1995,10 +2044,13 @@ stroke-width='6'/>
         return bTime.localeCompare(aTime);
       });
 
-      document.getElementById('listChronicle').innerHTML = all.length === 0
-        ? '<div class="empty">The chronicle is empty. Begin your first entry.</div>'
-        : all.map(e => {
+      const visible = chronicleFilter === 'all'
+        ? all
+        : all.filter(e => e._t === chronicleFilter);
 
+      document.getElementById('listChronicle').innerHTML = visible.length === 0
+        ? '<div class="empty">No entries match this Chronicle filter.</div>'
+        : visible.map(e => {
           if (e._t === 'daily') {
             const alcIcon = e.alcoholStatus === 'sober' ? '✦ Sober' : e.alcoholStatus === 'drank' ? '◈ Drank' : '◌ Binge';
             const wkIcon = e.workoutCompleted === 'yes' ? '✦ Trained' : '◌ Rest day';
