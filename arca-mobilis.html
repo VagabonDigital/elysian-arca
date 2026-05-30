@@ -1289,6 +1289,75 @@ stroke-width='6'/>
       border-color: var(--danger);
     }
 
+    /* ─── DAILY CONTINUITY PULSE ─────────────────────────────────────────────── */
+.daily-pulse {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  margin: -.25rem 0 1rem;
+  color: var(--text-2);
+  font-size: .78rem;
+  line-height: 1.45;
+}
+
+.daily-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--gold-lt);
+  box-shadow: 0 0 0 0 rgba(200, 164, 74, .22);
+  animation: dailyPulseGold 2.4s ease-in-out infinite;
+}
+
+.daily-pulse.sealed .daily-pulse-dot {
+  background: var(--success);
+  box-shadow: 0 0 0 0 rgba(78, 138, 104, .22);
+  animation-name: dailyPulseGreen;
+}
+
+.daily-pulse.pending .daily-pulse-dot {
+  background: var(--gold-lt);
+  box-shadow: 0 0 0 0 rgba(200, 164, 74, .22);
+  animation-name: dailyPulseGold;
+}
+
+.daily-pulse.gap .daily-pulse-dot {
+  background: var(--danger);
+  box-shadow: 0 0 0 0 rgba(176, 96, 64, .24);
+  animation-name: dailyPulseRed;
+}
+
+@keyframes dailyPulseGreen {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(78, 138, 104, .20);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgba(78, 138, 104, .04);
+  }
+}
+
+@keyframes dailyPulseGold {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(200, 164, 74, .22);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgba(200, 164, 74, .045);
+  }
+}
+
+@keyframes dailyPulseRed {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(176, 96, 64, .24);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgba(176, 96, 64, .05);
+  }
+}
+
     /* ─── CHRONICLE FILTERS ─────────────────────────────────────────────────── */
     .chron-filter-row {
       display: flex;
@@ -1836,6 +1905,12 @@ stroke-width='6'/>
       <div class="eb" id="ebDaily">Editing entry — submit to update the ledger.</div>
       <div class="fcard">
         <div class="ftitle s">Daily Check-In</div>
+
+        <div id="dailyContinuity" class="daily-pulse pending">
+          <span class="daily-pulse-dot"></span>
+          <span class="daily-pulse-text">Today is waiting</span>
+        </div>
+
         <form id="fDaily">
           <div class="fgrid">
             <div class="frow2">
@@ -2501,6 +2576,63 @@ stroke-width='6'/>
     }
     function daysAgo(n) { return ds(new Date(Date.now() - n * 86400000)); }
 
+    const DAILY_CONTINUITY_START = '2026-05-24';
+
+function recentMissingDailyDates() {
+  const d = load();
+  const entries = new Set((d.checkIns || []).map(e => e.date));
+  const missing = [];
+
+  const start = new Date(DAILY_CONTINUITY_START + 'T12:00:00');
+  const yesterday = new Date(today() + 'T12:00:00');
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  for (
+    let cursor = new Date(start);
+    cursor <= yesterday;
+    cursor.setDate(cursor.getDate() + 1)
+  ) {
+    const date = ds(cursor);
+    if (!entries.has(date)) missing.push(date);
+  }
+
+  return missing;
+}
+
+function renderDailyContinuity() {
+  const el = document.getElementById('dailyContinuity');
+  if (!el) return;
+
+  const d = load();
+  const todayDate = today();
+  const todayDone = (d.checkIns || []).some(e => e.date === todayDate);
+  const missing = recentMissingDailyDates();
+
+  el.classList.remove('sealed', 'pending', 'gap');
+
+  let message = '';
+
+  if (missing.length > 0) {
+    el.classList.add('gap');
+    const word = missing.length === 1 ? 'day' : 'days';
+
+    message = todayDone
+      ? `Today is sealed · ${missing.length} ${word} still missing from the chain`
+      : `Today is waiting · ${missing.length} ${word} missing from the chain`;
+  } else if (todayDone) {
+    el.classList.add('sealed');
+    message = 'Today is sealed';
+  } else {
+    el.classList.add('pending');
+    message = 'Today is waiting';
+  }
+
+  el.innerHTML = `
+    <span class="daily-pulse-dot"></span>
+    <span class="daily-pulse-text">${message}</span>
+  `;
+}
+
     /* ── ARCELLA BALANCE (combines both sources) ────────────────────────────────── */
     function calcArcellaBalance(excludeCheckInId) {
       const d = load();
@@ -2808,6 +2940,8 @@ stroke-width='6'/>
 
     /* ── RENDER DAILY ───────────────────────────────────────────────────────────── */
     function renderDaily() {
+      renderDailyContinuity();
+
       const d = load();
       const items = [...d.checkIns].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 50);
       document.getElementById('listDaily').innerHTML = items.length === 0
