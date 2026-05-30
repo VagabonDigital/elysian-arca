@@ -2800,6 +2800,70 @@ stroke-width='6'/>
       if (sub === 'chronicle') renderChronicle();
     }
 
+    /* ── MOBILE SWIPE NAVIGATION ─────────────────────────────────────────────── */
+    const swipeTabs = ['dashboard', 'arcella', 'daily', 'aether', 'ritual', 'more'];
+
+    let swipeStartX = 0;
+    let swipeStartY = 0;
+    let swipeStartOk = false;
+
+    function shouldIgnoreSwipeTarget(target) {
+      return !!target.closest(
+        'input, textarea, select, button, a, label, .modal-backdrop, .modal-sheet'
+      );
+    }
+
+    function getCurrentMobileTab() {
+      const active = document.querySelector('.bnav-btn.on');
+      return active ? active.dataset.sec : 'dashboard';
+    }
+
+    function goSwipeTab(direction) {
+      const current = getCurrentMobileTab();
+      const index = swipeTabs.indexOf(current);
+
+      if (index === -1) return;
+
+      const nextIndex = direction === 'next' ? index + 1 : index - 1;
+
+      if (nextIndex < 0 || nextIndex >= swipeTabs.length) return;
+
+      goTab(swipeTabs[nextIndex]);
+    }
+
+    const appSwipeArea = document.getElementById('app');
+
+    if (appSwipeArea) {
+      appSwipeArea.addEventListener('touchstart', e => {
+        const touch = e.touches[0];
+
+        swipeStartOk = !shouldIgnoreSwipeTarget(e.target);
+        swipeStartX = touch.clientX;
+        swipeStartY = touch.clientY;
+      }, { passive: true });
+
+      appSwipeArea.addEventListener('touchend', e => {
+        if (!swipeStartOk) return;
+
+        const touch = e.changedTouches[0];
+        const dx = touch.clientX - swipeStartX;
+        const dy = touch.clientY - swipeStartY;
+
+        const absX = Math.abs(dx);
+        const absY = Math.abs(dy);
+
+        if (absX < 70) return;
+        if (absY > 55) return;
+        if (absY > absX * 0.7) return;
+
+        if (dx < 0) {
+          goSwipeTab('next');
+        } else {
+          goSwipeTab('prev');
+        }
+      }, { passive: true });
+    }
+
     /* ── DAILY FORM ─────────────────────────────────────────────────────────────── */
     function currentArcellaBalance() { return calcArcellaBalance(); }
 
