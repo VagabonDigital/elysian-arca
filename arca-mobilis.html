@@ -1632,6 +1632,40 @@ stroke-width='6'/>
       margin: 1.2rem 0;
     }
 
+    /* ─── VELUM MODE ───────────────────────────────────────────────────────── */
+    body.velum-mode .private-value {
+      filter: blur(6px);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    body.velum-mode .private-value::selection {
+      background: transparent;
+    }
+
+    #landSub {
+      transition:
+        opacity .28s ease,
+        color .45s ease,
+        letter-spacing .45s ease,
+        text-shadow .45s ease;
+    }
+
+    #landSub.velum-shift {
+      opacity: 0;
+    }
+
+    body.velum-mode #landSub {
+      color: var(--silver-lt);
+      letter-spacing: .34em;
+      text-shadow: 0 0 16px rgba(122, 168, 196, .18);
+    }
+
+    body.velum-mode .arca-sigil {
+      color: var(--silver-lt);
+      filter: drop-shadow(0 0 20px rgba(122, 168, 196, .22));
+    }
+
     /* Accent color helpers */
     .c-gold {
       color: var(--gold-lt);
@@ -1838,7 +1872,7 @@ stroke-width='6'/>
           <span>A</span><span>R</span><span>C</span><span>A</span>
         </span>
       </h1>
-      <div class="land-sub">Personal Treasury Terminal</div>
+      <div class="land-sub" id="landSub">Personal Treasury Terminal</div>
       <div class="land-rule"></div>
       <div class="land-msg" id="landMsg"></div>
       <button class="land-btn" onclick="enterArca()">Enter Arca</button>
@@ -1889,7 +1923,8 @@ stroke-width='6'/>
           </div>
           <div class="fgrp" style="flex:1">
             <label>Balance After</label>
-            <input type="text" id="qa-preview" readonly placeholder="$0.00" style="color:var(--silver-lt);opacity:.85">
+            <input type="text" id="qa-preview" class="private-value" readonly placeholder="$0.00"
+              style="color:var(--silver-lt);opacity:.85">
           </div>
         </div>
 
@@ -2043,7 +2078,7 @@ stroke-width='6'/>
               </div>
               <div class="fgrp">
                 <label>Previous Total</label>
-                <input type="number" id="ar-prev" step="0.01" placeholder="0.00" required>
+                <input type="number" id="ar-prev" class="private-value" step="0.01" placeholder="0.00" required>
               </div>
             </div>
             <div class="frow2">
@@ -2053,7 +2088,7 @@ stroke-width='6'/>
               </div>
               <div class="fgrp">
                 <label>New Total</label>
-                <input type="number" id="ar-new" step="0.01" placeholder="auto-calc" required>
+                <input type="number" id="ar-new" class="private-value" step="0.01" placeholder="auto-calc" required>
               </div>
             </div>
             <div class="fgrp">
@@ -2253,6 +2288,7 @@ stroke-width='6'/>
     /* ── STATE ──────────────────────────────────────────────────────────────────── */
     const editing = { daily: null, aether: null, ritual: null };
     let chronicleFilter = 'all';
+    let velumMode = false;
     let editingQId = null;
     let quickType = 'deposit'; // 'deposit' | 'withdrawal'
 
@@ -2335,6 +2371,48 @@ stroke-width='6'/>
         btn.textContent = isDay ? '☀' : '☾';
         btn.setAttribute('aria-label', isDay ? 'Switch to night mode' : 'Switch to day mode');
       }
+    }
+
+    function activateVelum() {
+      if (velumMode) return;
+
+      velumMode = true;
+      document.body.classList.add('velum-mode');
+
+      const sub = document.getElementById('landSub');
+
+      if (sub) {
+        sub.classList.add('velum-shift');
+
+        setTimeout(() => {
+          sub.textContent = 'SUB VELO';
+          sub.classList.remove('velum-shift');
+        }, 280);
+      }
+    }
+
+    function bindVelumSwipe() {
+      const landing = document.getElementById('landing');
+      if (!landing) return;
+
+      let startX = 0;
+      let startY = 0;
+
+      landing.addEventListener('touchstart', e => {
+        const t = e.touches[0];
+        startX = t.clientX;
+        startY = t.clientY;
+      }, { passive: true });
+
+      landing.addEventListener('touchend', e => {
+        const t = e.changedTouches[0];
+        const dx = t.clientX - startX;
+        const dy = t.clientY - startY;
+
+        if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+          activateVelum();
+        }
+      }, { passive: true });
     }
 
     function toggleMode() {
@@ -2578,6 +2656,14 @@ stroke-width='6'/>
       const abs = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       return (v < 0 ? '−$' : '$') + abs;
     }
+
+    function privateMoney(n) {
+      return `<span class="private-value">${fmtMoney(n)}</span>`;
+    }
+
+    function privateValue(v) {
+      return `<span class="private-value">${v}</span>`;
+    }
     const CAMBLY_RATE_PER_MIN = 0.17;
 
     function hasMerces(p) {
@@ -2820,7 +2906,7 @@ stroke-width='6'/>
       document.getElementById('statGrid').innerHTML = `
     <div class="scard g">
       <div class="scard-lbl">Elysian Arca</div>
-      <div class="scard-val">${fmtMoney(s.arcaTotal)}</div>
+      <div class="scard-val">${privateMoney(s.arcaTotal)}</div>
       <div class="scard-sub">${s.arcaGrowth > 0 ? '↑ ' + fmtMoney(s.arcaGrowth) + ' last ritual' : 'Awaiting first ritual'}</div>
     </div>
     <div class="scard g">
@@ -2830,7 +2916,7 @@ stroke-width='6'/>
     </div>
     <div class="scard s">
       <div class="scard-lbl">La Arcella</div>
-      <div class="scard-val">${fmtMoney(s.arcellaBal)}</div>
+      <div class="scard-val">${privateMoney(s.arcellaBal)}</div>
       <div class="scard-sub">Active runway</div>
     </div>
     <div class="scard t">
@@ -2878,7 +2964,7 @@ stroke-width='6'/>
       const bal = calcArcellaBalance();
 
       // Update quick balance display
-      document.getElementById('quickBal').textContent = fmtMoney(bal);
+      document.getElementById('quickBal').innerHTML = privateMoney(bal);
       updateQuickPreview();
 
       // Build combined transaction list (check-ins with transactions + quick movements)
@@ -3261,7 +3347,7 @@ stroke-width='6'/>
         return `<div class="tl-row">
       <span class="tl-date">${fmtDate(r.maturityDate).replace(',', '')}</span>
       <div class="tl-wrap"><div class="tl-bar" style="width:${pct}%"></div></div>
-      <span class="tl-val">${fmtMoney(r.newTotal)}</span>
+      <span class="tl-val">${privateMoney(r.newTotal)}</span>
     </div>`;
       }).join('') + '</div>';
     }
@@ -3756,7 +3842,7 @@ stroke-width='6'/>
       applyMode(localStorage.getItem(THEME_KEY) || 'night');
 
       document.getElementById('landMsg').textContent = MSGS[Math.floor(Math.random() * MSGS.length)];
-
+      bindVelumSwipe();
       document.getElementById('hdDate').textContent =
         new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase();
 
