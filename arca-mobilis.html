@@ -2554,8 +2554,24 @@ stroke-width='6'/>
     }
     function fmtDate(s) {
       if (!s) return '—';
+
       const [y, m, d] = s.split('-').map(Number);
-      return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const date = new Date(y, m - 1, d);
+
+      const fullDate = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+
+      const weekday = date.toLocaleDateString('en-US', {
+        weekday: 'long'
+      });
+
+      if (s === today()) return `Today · ${weekday} · ${fullDate}`;
+      if (s === daysAgo(1)) return `Yesterday · ${weekday} · ${fullDate}`;
+
+      return `${weekday} · ${fullDate}`;
     }
     function fmtMoney(n) {
       const v = Number(n) || 0;
