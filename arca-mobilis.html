@@ -2938,7 +2938,7 @@ stroke-width='6'/>
 
       const net30Color = s.net30 >= 0 ? 'var(--silver-lt)' : 'var(--danger)';
       document.getElementById('sum30').innerHTML = `
-    <div class="sum-item"><div class="sum-n" style="color:${net30Color}">${fmtMoney(s.net30)}</div><div class="sum-l">Arcella Net</div></div>
+    <div class="sum-item"><div class="sum-n" style="color:${net30Color}">${privateMoney(s.net30)}</div><div class="sum-l">Arcella Net</div></div>
     <div class="sum-item"><div class="sum-n" style="color:var(--teal-lt)">${fmtMoney(s.l4sum)}</div><div class="sum-l">Vitis Flow</div></div>
     <div class="sum-item"><div class="sum-n" style="color:var(--silver-lt)">${s.sober30}</div><div class="sum-l">Sober Days</div></div>
     <div class="sum-item"><div class="sum-n" style="color:var(--silver-lt)">${s.workouts30}</div><div class="sum-l">Workouts</div></div>
@@ -3319,7 +3319,7 @@ stroke-width='6'/>
             <div class="etype g">Arca Ritual</div>
             <div class="edate">${fmtDate(e.maturityDate)}</div>
             <div class="ebody">
-              <span style="color:var(--gold-lt);font-family:var(--ff-mono);font-size:1.05rem">${fmtMoney(e.newTotal)}</span>
+              <span style="color:var(--gold-lt);font-family:var(--ff-mono);font-size:1.05rem">${privateMoney(e.newTotal)}</span>
               <span style="color:var(--text-3)"> (+${fmtMoney(e.amountAdded)})</span>
               ${nextPart}${notePart}
             </div>
