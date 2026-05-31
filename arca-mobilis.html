@@ -2651,6 +2651,27 @@ stroke-width='6'/>
 
       return `${weekday} · ${fullDate}`;
     }
+    function fmtDateShort(s) {
+      if (!s) return '—';
+
+      const [y, m, d] = s.split('-').map(Number);
+      const date = new Date(y, m - 1, d);
+
+      const fullDate = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+
+      const weekday = date.toLocaleDateString('en-US', {
+        weekday: 'short'
+      });
+
+      if (s === today()) return `Today · ${weekday} · ${fullDate}`;
+      if (s === daysAgo(1)) return `Yesterday · ${weekday} · ${fullDate}`;
+
+      return `${weekday} · ${fullDate}`;
+    }
     function fmtMoney(n) {
       const v = Number(n) || 0;
       const abs = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -2911,7 +2932,7 @@ stroke-width='6'/>
     </div>
     <div class="scard g">
       <div class="scard-lbl">Next Maturity</div>
-      <div class="scard-val" style="font-size:1rem;line-height:1.25">${s.nextMat ? fmtDate(s.nextMat) : '—'}</div>
+      <div class="scard-val" style="font-size:1rem;line-height:1.25">${s.nextMat ? fmtDateShort(s.nextMat) : '—'}</div>
       <div class="scard-sub">${s.daysUntil !== null ? s.daysUntil + ' days remaining' : 'No ritual recorded'}</div>
     </div>
     <div class="scard s">
