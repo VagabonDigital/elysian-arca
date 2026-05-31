@@ -2657,20 +2657,16 @@ stroke-width='6'/>
       const [y, m, d] = s.split('-').map(Number);
       const date = new Date(y, m - 1, d);
 
-      const fullDate = date.toLocaleDateString('en-US', {
+      const shortDate = date.toLocaleDateString('en-US', {
+        weekday: 'short',
         month: 'short',
-        day: 'numeric',
-        year: 'numeric'
+        day: 'numeric'
       });
 
-      const weekday = date.toLocaleDateString('en-US', {
-        weekday: 'short'
-      });
+      if (s === today()) return `Today · ${shortDate}`;
+      if (s === daysAgo(1)) return `Yesterday · ${shortDate}`;
 
-      if (s === today()) return `Today · ${weekday} · ${fullDate}`;
-      if (s === daysAgo(1)) return `Yesterday · ${weekday} · ${fullDate}`;
-
-      return `${weekday} · ${fullDate}`;
+      return shortDate;
     }
     function fmtMoney(n) {
       const v = Number(n) || 0;
