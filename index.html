@@ -1575,7 +1575,15 @@ stroke-width='6'/>
             </div>
 
             <div class="fgrp">
-              <label>Cambly Merces</label>
+              <label>Flow Source</label>
+              <select id="av-source">
+                <option value="cambly">Cambly</option>
+                <option value="preply">Preply</option>
+              </select>
+            </div>
+
+            <div class="fgrp">
+              <label>Expected Merces</label>
               <input type="number" id="av-merces" min="0" step="0.01" placeholder="0.00">
             </div>
 
@@ -2053,33 +2061,79 @@ stroke-width='6'/>
 
       return `${weekday} · ${fullDate}`;
     }
+
     function fmtMoney(n) {
       const v = Number(n) || 0;
       const abs = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       return (v < 0 ? '−$' : '$') + abs;
     }
+
     const CAMBLY_RATE_PER_MIN = 0.17;
 
-    function hasMerces(p) {
+    function num(v) {
+      return +v || 0;
+    }
+
+    function hasLegacyCamblyMerces(p) {
       return p && p.camblyMerces !== undefined && p.camblyMerces !== null && p.camblyMerces !== '';
     }
 
+    function hasLegacyPreplyMerces(p) {
+      return p && p.preplyMerces !== undefined && p.preplyMerces !== null && p.preplyMerces !== '';
+    }
+
+    function hasModernMerces(p) {
+      return p && p.merces !== undefined && p.merces !== null && p.merces !== '';
+    }
+
+    function getFlowSource(p) {
+      if (p && (p.flowSource === 'cambly' || p.flowSource === 'preply')) return p.flowSource;
+
+      if (hasLegacyPreplyMerces(p) && !hasLegacyCamblyMerces(p)) return 'preply';
+
+      return 'cambly';
+    }
+
+    function getFlowSourceLabel(p) {
+      return getFlowSource(p) === 'preply' ? 'Preply' : 'Cambly';
+    }
+
+    function isCamblyFlow(p) {
+      return getFlowSource(p) === 'cambly';
+    }
+
+    function isPreplyFlow(p) {
+      return getFlowSource(p) === 'preply';
+    }
+
+    function hasMerces(p) {
+      return hasModernMerces(p) || hasLegacyCamblyMerces(p) || hasLegacyPreplyMerces(p);
+    }
+
     function getReceived(p) {
-      return +p.amount || 0;
+      return num(p.amount);
     }
 
     function getMerces(p) {
-      return hasMerces(p) ? (+p.camblyMerces || 0) : null;
+      if (hasModernMerces(p)) return num(p.merces);
+
+      if (isPreplyFlow(p) && hasLegacyPreplyMerces(p)) return num(p.preplyMerces);
+      if (isCamblyFlow(p) && hasLegacyCamblyMerces(p)) return num(p.camblyMerces);
+
+      if (hasLegacyCamblyMerces(p)) return num(p.camblyMerces);
+      if (hasLegacyPreplyMerces(p)) return num(p.preplyMerces);
+
+      return null;
     }
 
-    function teachingHoursFromMerces(n) {
-      const v = +n || 0;
+    function teachingHoursFromCamblyMerces(n) {
+      const v = num(n);
       return v > 0 ? v / CAMBLY_RATE_PER_MIN / 60 : 0;
     }
 
     function getTeachingHours(p) {
       const merces = getMerces(p);
-      return merces === null ? null : teachingHoursFromMerces(merces);
+      return isCamblyFlow(p) && merces !== null ? teachingHoursFromCamblyMerces(merces) : null;
     }
 
     function getFlowLoss(p) {
@@ -2116,7 +2170,8 @@ stroke-width='6'/>
         return sum + (hrs || 0);
       }, 0);
 
-      const lastHours = last ? getTeachingHours(last) : null;
+      const lastCambly = [...payouts].reverse().find(p => isCamblyFlow(p));
+      const lastHours = lastCambly ? getTeachingHours(lastCambly) : null;
 
       const previous4 = payouts.slice(-5, -1);
       const previousAvg = previous4.length
@@ -2145,6 +2200,7 @@ stroke-width='6'/>
         pulseLabel
       };
     }
+
     function daysAgo(n) { return ds(new Date(Date.now() - n * 86400000)); }
 
     const DAILY_CONTINUITY_START = '2026-05-24';
@@ -2199,9 +2255,9 @@ stroke-width='6'/>
       }
 
       el.innerHTML = `
-    <span class="daily-pulse-dot"></span>
-    <span class="daily-pulse-text">${message}</span>
-  `;
+      <span class="daily-pulse-dot"></span>
+      <span class="daily-pulse-text">${message}</span>
+    `;
     }
 
     /* ── STATS ─────────────────────────────────────────────────────────────────── */
@@ -2289,58 +2345,61 @@ stroke-width='6'/>
 
       /* Hero cards */
       document.getElementById('statGrid').innerHTML = `
-    <div class="scard g">
-      <div class="scard-lbl">Elysian Arca</div>
-      <div class="scard-val">${fmtMoney(s.arcaTotal)}</div>
-      <div class="scard-sub">${s.arcaGrowth > 0 ? '↑ ' + fmtMoney(s.arcaGrowth) + ' last ritual' : 'Awaiting first ritual'}</div>
-    </div>
-    <div class="scard g">
-      <div class="scard-lbl">Next Maturity</div>
-      <div class="scard-val" style="font-size:1.05rem;line-height:1.3">${s.nextMat ? fmtDate(s.nextMat) : '—'}</div>
-      <div class="scard-sub">${s.daysUntil !== null ? s.daysUntil + ' days remaining' : 'No ritual recorded'}</div>
-    </div>
-    <div class="scard s">
-      <div class="scard-lbl">La Arcella</div>
-      <div class="scard-val">${fmtMoney(s.arcellaBal)}</div>
-      <div class="scard-sub">Active runway</div>
-    </div>
-    <div class="scard t">
-      <div class="scard-lbl">Aether Vitis</div>
-      <div class="scard-val">${fmtMoney(s.lastPayout)}</div>
-      <div class="scard-sub">Last tutoring flow</div>
-    </div>
-    <div class="scard s">
-      <div class="scard-lbl">Sober Streak</div>
-      <div class="scard-val">${s.streak} <span style="font-size:.9rem;font-family:var(--ff-sans)">days</span></div>
-      <div class="scard-sub">${s.sober30} sober / last 30 days</div>
-    </div>
-    <div class="scard s">
-      <div class="scard-lbl">Training</div>
-      <div class="scard-val">${s.workouts30} <span style="font-size:.9rem;font-family:var(--ff-sans)">sessions</span></div>
-      <div class="scard-sub">Last 30 days</div>
-    </div>
-  `;
+      <div class="scard g">
+        <div class="scard-lbl">Elysian Arca</div>
+        <div class="scard-val">${fmtMoney(s.arcaTotal)}</div>
+        <div class="scard-sub">${s.arcaGrowth > 0 ? '↑ ' + fmtMoney(s.arcaGrowth) + ' last ritual' : 'Awaiting first ritual'}</div>
+      </div>
+      <div class="scard g">
+        <div class="scard-lbl">Next Maturity</div>
+        <div class="scard-val" style="font-size:1.05rem;line-height:1.3">${s.nextMat ? fmtDate(s.nextMat) : '—'}</div>
+        <div class="scard-sub">${s.daysUntil !== null ? s.daysUntil + ' days remaining' : 'No ritual recorded'}</div>
+      </div>
+      <div class="scard s">
+        <div class="scard-lbl">La Arcella</div>
+        <div class="scard-val">${fmtMoney(s.arcellaBal)}</div>
+        <div class="scard-sub">Active runway</div>
+      </div>
+      <div class="scard t">
+        <div class="scard-lbl">Aether Vitis</div>
+        <div class="scard-val">${fmtMoney(s.lastPayout)}</div>
+        <div class="scard-sub">Last tutoring flow</div>
+      </div>
+      <div class="scard s">
+        <div class="scard-lbl">Sober Streak</div>
+        <div class="scard-val">${s.streak} <span style="font-size:.9rem;font-family:var(--ff-sans)">days</span></div>
+        <div class="scard-sub">${s.sober30} sober / last 30 days</div>
+      </div>
+      <div class="scard s">
+        <div class="scard-lbl">Training</div>
+        <div class="scard-val">${s.workouts30} <span style="font-size:.9rem;font-family:var(--ff-sans)">sessions</span></div>
+        <div class="scard-sub">Last 30 days</div>
+      </div>
+    `;
 
       /* 30-day strip */
       const net30Color = s.net30 >= 0 ? 'var(--silver-lt)' : 'var(--danger)';
       document.getElementById('sum30').innerHTML = `
-    <div class="sum-item"><div class="sum-n" style="color:${net30Color}">${fmtMoney(s.net30)}</div><div class="sum-l">Arcella Net</div></div>
-    <div class="sum-item"><div class="sum-n" style="color:var(--teal-lt)">${fmtMoney(s.l4sum)}</div><div class="sum-l">Vitis Flow</div></div>
-    <div class="sum-item"><div class="sum-n" style="color:var(--silver-lt)">${s.sober30}</div><div class="sum-l">Sober Days</div></div>
-    <div class="sum-item"><div class="sum-n" style="color:var(--silver-lt)">${s.workouts30}</div><div class="sum-l">Workouts</div></div>
-  `;
+      <div class="sum-item"><div class="sum-n" style="color:${net30Color}">${fmtMoney(s.net30)}</div><div class="sum-l">Arcella Net</div></div>
+      <div class="sum-item"><div class="sum-n" style="color:var(--teal-lt)">${fmtMoney(s.l4sum)}</div><div class="sum-l">Vitis Flow</div></div>
+      <div class="sum-item"><div class="sum-n" style="color:var(--silver-lt)">${s.sober30}</div><div class="sum-l">Sober Days</div></div>
+      <div class="sum-item"><div class="sum-n" style="color:var(--silver-lt)">${s.workouts30}</div><div class="sum-l">Workouts</div></div>
+    `;
 
       /* Last 4 payouts */
       const rev = [...s.last4].reverse();
       document.getElementById('last4').innerHTML = rev.length === 0
         ? '<div class="empty">No payout entries yet. Record your first Aether Vitis payout.</div>'
-        : '<div class="pay-list">' + rev.map(p =>
-          `<div class="pay-item">
-           <span class="pay-date">${fmtDate(p.date)}</span>
-           <span class="pay-note">${esc(p.note || '')}</span>
-           <span class="pay-amt">${fmtMoney(p.amount)}</span>
-         </div>`
-        ).join('') + '</div>';
+        : '<div class="pay-list">' + rev.map(p => {
+          const sourceLabel = getFlowSourceLabel(p);
+          const note = p.note ? ` · ${esc(p.note)}` : '';
+
+          return `<div class="pay-item">
+          <span class="pay-date">${fmtDate(p.date)}</span>
+          <span class="pay-note">${sourceLabel}${note}</span>
+          <span class="pay-amt">${fmtMoney(p.amount)}</span>
+        </div>`;
+        }).join('') + '</div>';
     }
 
     /* ── RENDER DAILY ──────────────────────────────────────────────────────────── */
@@ -2374,56 +2433,59 @@ stroke-width='6'/>
 
     /* ── RENDER AETHER ─────────────────────────────────────────────────────────── */
     function renderAetherPreview() {
+      const sourceEl = document.getElementById('av-source');
       const mercesEl = document.getElementById('av-merces');
       const amountEl = document.getElementById('av-amt');
       const previewEl = document.getElementById('avPreview');
       const netEl = document.getElementById('av-net-preview');
 
-      if (!mercesEl || !amountEl || !previewEl) return;
+      if (!sourceEl || !mercesEl || !amountEl || !previewEl) return;
 
-      const merces = +mercesEl.value || 0;
-      const received = +amountEl.value || 0;
+      const source = sourceEl.value || 'cambly';
+      const sourceLabel = source === 'preply' ? 'Preply' : 'Cambly';
+      const merces = num(mercesEl.value);
+      const received = num(amountEl.value);
 
-      const hours = merces > 0 ? teachingHoursFromMerces(merces) : null;
+      const hours = source === 'cambly' && merces > 0 ? teachingHoursFromCamblyMerces(merces) : null;
       const loss = merces > 0 ? merces - received : null;
       const net = merces > 0 ? (received / merces) * 100 : null;
 
       if (netEl) netEl.value = net === null ? '—' : fmtPercent(net);
 
       previewEl.innerHTML = `
-    <div class="sum-item aether-mini-card">
-      <div class="aether-mini-badge">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M7 4h10M7 20h10M8 4c0 4 3 5 4 8-1 3-4 4-4 8M16 4c0 4-3 5-4 8 1 3 4 4 4 8M9 8h6M9 16h6" />
-        </svg>
+      <div class="sum-item aether-mini-card">
+        <div class="aether-mini-badge">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 4h10M7 20h10M8 4c0 4 3 5 4 8-1 3-4 4-4 8M16 4c0 4-3 5-4 8 1 3 4 4 4 8M9 8h6M9 16h6" />
+          </svg>
+        </div>
+        <div class="sum-n" style="color:var(--teal-lt)">${source === 'cambly' ? fmtHours(hours) : fmtMoney(merces)}</div>
+        <div class="sum-l">${source === 'cambly' ? 'Cambly Time' : 'Preply Merces'}</div>
       </div>
-      <div class="sum-n" style="color:var(--teal-lt)">${fmtHours(hours)}</div>
-      <div class="sum-l">Teaching Hours</div>
-    </div>
 
-    <div class="sum-item aether-mini-card">
-      <div class="aether-mini-badge loss">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M5 7l5 5 4-4 5 7" />
-          <path d="M15 15h4v-4" />
-        </svg>
+      <div class="sum-item aether-mini-card">
+        <div class="aether-mini-badge loss">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 7l5 5 4-4 5 7" />
+            <path d="M15 15h4v-4" />
+          </svg>
+        </div>
+        <div class="sum-n" style="color:${loss !== null && loss > 0 ? 'var(--gold-lt)' : 'var(--text-3)'}">${loss === null ? '—' : fmtMoney(loss)}</div>
+        <div class="sum-l">Flow Loss</div>
       </div>
-      <div class="sum-n" style="color:${loss !== null && loss > 0 ? 'var(--gold-lt)' : 'var(--text-3)'}">${loss === null ? '—' : fmtMoney(loss)}</div>
-      <div class="sum-l">Flow Loss</div>
-    </div>
 
-    <div class="sum-item aether-mini-card">
-      <div class="aether-mini-badge">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="7" />
-          <circle cx="12" cy="12" r="3" />
-          <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
-        </svg>
+      <div class="sum-item aether-mini-card">
+        <div class="aether-mini-badge">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="7" />
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+          </svg>
+        </div>
+        <div class="sum-n" style="color:var(--teal-lt)">${fmtPercent(net)}</div>
+        <div class="sum-l">Net Landing</div>
       </div>
-      <div class="sum-n" style="color:var(--teal-lt)">${fmtPercent(net)}</div>
-      <div class="sum-l">Net Landing</div>
-    </div>
-  `;
+    `;
     }
 
     function renderAether() {
@@ -2471,8 +2533,8 @@ stroke-width='6'/>
         </svg>
       </div>
       <div class="sum-n">${fmtHours(m.lastHours)}</div>
-      <div class="sum-l">Teaching Hours</div>
-      <div class="scard-sub">Last tutoring flow</div>
+      <div class="sum-l">Cambly Time</div>
+      <div class="scard-sub">Last Cambly flow</div>
     </div>
   `;
       }
@@ -2480,15 +2542,24 @@ stroke-width='6'/>
       document.getElementById('listAether').innerHTML = items.length === 0
         ? '<div class="empty">No flow entries yet. Record your first Aether Vitis weekly flow.</div>'
         : items.map(e => {
+          const sourceLabel = getFlowSourceLabel(e);
           const merces = getMerces(e);
           const hours = getTeachingHours(e);
           const loss = getFlowLoss(e);
           const net = getNetLanding(e);
 
+          const mercesLine = hasMerces(e)
+            ? `<br><span style="opacity:.75">${sourceLabel} Merces: <span style="font-family:var(--ff-mono);color:var(--text-2)">${fmtMoney(merces)}</span></span>`
+            : '';
+
+          const hoursLine = isCamblyFlow(e) && hasMerces(e)
+            ? `<br><span style="opacity:.75">Cambly Time: <span style="font-family:var(--ff-mono);color:var(--text-2)">${fmtHours(hours)}</span></span>`
+            : '';
+
           const details = hasMerces(e)
             ? `
-          <br><span style="opacity:.75">Cambly Merces: <span style="font-family:var(--ff-mono);color:var(--text-2)">${fmtMoney(merces)}</span></span>
-          <br><span style="opacity:.75">Teaching Time: <span style="font-family:var(--ff-mono);color:var(--text-2)">${fmtHours(hours)}</span></span>
+          ${mercesLine}
+          ${hoursLine}
           <br><span style="opacity:.75">Flow Loss: <span style="font-family:var(--ff-mono);color:${loss > 0 ? 'var(--gold-lt)' : 'var(--text-2)'}">${fmtMoney(loss)}</span></span>
           <br><span style="opacity:.75">Net Landing: <span style="font-family:var(--ff-mono);color:var(--teal-lt)">${fmtPercent(net)}</span></span>
         `
@@ -2500,7 +2571,7 @@ stroke-width='6'/>
 
           return `<div class="eitem">
         <div class="emain">
-          <div class="etype t">Aether Vitis</div>
+          <div class="etype t">Aether Vitis · ${sourceLabel}</div>
           <div class="edate">${fmtDate(e.date)}</div>
           <div class="ebody">
             <span style="color:var(--teal-lt);font-family:var(--ff-mono);font-size:1.1rem">${fmtMoney(e.amount)}</span>
@@ -2624,14 +2695,14 @@ stroke-width='6'/>
           }
 
           if (e._t === 'aether') {
+            const sourceLabel = getFlowSourceLabel(e);
             const merces = getMerces(e);
-            const hours = getTeachingHours(e);
             const loss = getFlowLoss(e);
 
             const detailPart = hasMerces(e)
               ? `<br><span style="opacity:.55;font-size:.78rem">
-                  Merces: ${fmtMoney(merces)} · ${fmtHours(hours)} · Loss: ${fmtMoney(loss)}
-                </span>`
+      ${sourceLabel} Merces: ${fmtMoney(merces)} · Loss: ${fmtMoney(loss)}
+    </span>`
               : '';
 
             const np = e.note
@@ -2640,7 +2711,7 @@ stroke-width='6'/>
 
             return `<div class="eitem">
               <div class="emain">
-                <div class="etype t">Aether Vitis</div>
+                <div class="etype t">Aether Vitis · ${sourceLabel}</div>
                 <div class="edate">${fmtDate(e.date)}</div>
                 <div class="ebody">
                   <span style="color:var(--teal-lt);font-family:var(--ff-mono)">${fmtMoney(e.amount)}</span>
@@ -2826,8 +2897,9 @@ stroke-width='6'/>
       const entry = {
         id,
         date: document.getElementById('av-date').value,
+        flowSource: document.getElementById('av-source').value,
+        merces: document.getElementById('av-merces').value,
         amount: document.getElementById('av-amt').value,
-        camblyMerces: document.getElementById('av-merces').value,
         note: document.getElementById('av-note').value.trim()
       };
 
@@ -2902,7 +2974,10 @@ stroke-width='6'/>
         const e = d.payouts.find(p => p.id === id); if (!e) return;
         editing.aether = id;
         document.getElementById('av-date').value = e.date;
-        document.getElementById('av-merces').value = e.camblyMerces || '';
+        const merces = getMerces(e);
+
+        document.getElementById('av-source').value = getFlowSource(e);
+        document.getElementById('av-merces').value = merces === null ? '' : merces;
         document.getElementById('av-amt').value = e.amount;
         document.getElementById('av-note').value = e.note || '';
         document.getElementById('ebAether').classList.add('on');
@@ -3075,9 +3150,11 @@ stroke-width='6'/>
       document.getElementById('di-date').value = today();
       document.getElementById('av-date').value = today();
 
+      const avSource = document.getElementById('av-source');
       const avMerces = document.getElementById('av-merces');
       const avAmt = document.getElementById('av-amt');
 
+      if (avSource) avSource.addEventListener('change', renderAetherPreview);
       if (avMerces) avMerces.addEventListener('input', renderAetherPreview);
       if (avAmt) avAmt.addEventListener('input', renderAetherPreview);
 
