@@ -1929,6 +1929,11 @@ stroke-width='6'/>
         </div>
 
         <div class="quick-note-row fgrp">
+          <label>Date</label>
+          <input type="date" id="qa-date">
+        </div>
+
+        <div class="quick-note-row fgrp">
           <label>Note (optional)</label>
           <input type="text" id="qa-note" placeholder="What was this for?">
         </div>
@@ -3111,10 +3116,13 @@ stroke-width='6'/>
       const amt = +document.getElementById('qa-amt').value || 0;
       if (amt <= 0) { toast('Enter an amount.'); return; }
 
+      const movementDate = document.getElementById('qa-date').value;
+      if (!movementDate) { toast('Choose a date.'); return; }
+
       const d = load();
       const entry = {
         id: uid(),
-        date: today(),
+        date: movementDate,
         type: quickType,
         amount: amt,
         note: document.getElementById('qa-note').value.trim(),
@@ -3126,6 +3134,7 @@ stroke-width='6'/>
 
       // Reset
       document.getElementById('qa-amt').value = '';
+      document.getElementById('qa-date').value = today();
       document.getElementById('qa-note').value = '';
       document.getElementById('qa-preview').value = '';
 
@@ -3935,6 +3944,7 @@ ${sourceLabel} Merces: ${fmtMoney(merces)}${hourPart} · Loss: ${fmtMoney(loss)}
 
       document.getElementById('di-date').value = today();
       document.getElementById('av-date').value = today();
+      document.getElementById('qa-date').value = today();
 
       const avSource = document.getElementById('av-source');
       const avMerces = document.getElementById('av-merces');
